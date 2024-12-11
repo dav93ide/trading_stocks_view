@@ -2534,7 +2534,7 @@ class ViewStocksPanel(BasePanel):
             filtered = self.__mList.get_filtered_items()
             if filtered is not None and len(filtered) > 0:
                 for i in range(0, len(filtered)):
-                    if self.__mStockViewData.get_stock().get_id() == filtered[i].get_id():
+                    if self.__mStockViewData is not None and self.__mStockViewData.get_stock().get_id() == filtered[i].get_id():
                         self.__mList.unbind_listener()
                         self.__mList.Select(i)
                         self.__mList.bind_listener()
