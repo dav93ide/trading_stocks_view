@@ -2455,58 +2455,58 @@ class ViewStocksPanel(BasePanel):
 
     def __on_click_open_one_day_chart(self, evt):
         stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_stock().get_sign(), APIConstants.VALUE_1D, APIConstants.VALUE_1M)
-        self.__mGraphOneDayPlot = ChartFrame(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        self.__mGraphOneDayPlot = ChartFrame("One Day Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
         self.__mGraphOneDayPlot.Show(True)
         self.__mGraphOneDayPlot.Bind(wx.EVT_WINDOW_DESTROY, self.__on_destroy_graph_one_day_plot)
 
     def __on_click_open_five_day_chart(self, evt):
         stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_stock().get_sign(), APIConstants.VALUE_5D, APIConstants.VALUE_1M)
-        cf = ChartFrame(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf = ChartFrame("Five Days Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
         cf.Show(True)
         
     def __on_click_open_one_month_chart(self, evt):
         stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_stock().get_sign(), APIConstants.VALUE_1MO, APIConstants.VALUE_5M)
-        cf = ChartFrame(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf = ChartFrame("One Month Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
         cf.Show(True)
 
     def __on_click_open_three_month_chart(self, evt):
         stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_stock().get_sign(), APIConstants.VALUE_3MO, APIConstants.VALUE_1H)
-        cf = ChartFrame(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf = ChartFrame("Three Months Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
         cf.Show(True)
 
     def __on_click_open_six_month_chart(self, evt):
         stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_stock().get_sign(), APIConstants.VALUE_6MO, APIConstants.VALUE_1H)
-        cf = ChartFrame(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf = ChartFrame("Six Months Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
         cf.Show(True)
 
     def __on_click_open_one_year_chart(self, evt):
         stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_stock().get_sign(), APIConstants.VALUE_1Y, APIConstants.VALUE_1H)
-        cf = ChartFrame(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf = ChartFrame("One Year Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
         cf.Show(True)
 
     def __on_click_open_two_year_chart(self, evt):
         stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_stock().get_sign(), APIConstants.VALUE_2Y, APIConstants.VALUE_1H)
-        cf = ChartFrame(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf = ChartFrame("Two Years Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
         cf.Show(True)
 
     def __on_click_open_five_year_chart(self, evt):
         stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_stock().get_sign(), APIConstants.VALUE_5Y, APIConstants.VALUE_1D)
-        cf = ChartFrame(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf = ChartFrame("Five Years Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
         cf.Show(True)
 
     def __on_click_open_ten_year_chart(self, evt):
         stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_stock().get_sign(), APIConstants.VALUE_10Y, APIConstants.VALUE_1D)
-        cf = ChartFrame(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf = ChartFrame("Ten Years Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
         cf.Show(True)
 
     def __on_click_open_ytd_chart(self, evt):
         stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_stock().get_sign(), APIConstants.VALUE_YTD, APIConstants.VALUE_1H)
-        cf = ChartFrame(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf = ChartFrame("YTD Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
         cf.Show(True)
 
     def __on_click_open_max_chart(self, evt):
         stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_stock().get_sign(), APIConstants.VALUE_MAX, APIConstants.VALUE_1D)
-        cf = ChartFrame(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf = ChartFrame("Max Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
         cf.Show(True)
 
     def __on_click_open_in_new_window(self, evt):
@@ -2532,12 +2532,13 @@ class ViewStocksPanel(BasePanel):
             if list_bottom != 0:
                 self.__mList.EnsureVisible((list_bottom - 1))
             filtered = self.__mList.get_filtered_items()
-            for i in range(0, len(filtered)):
-                if self.__mStockViewData.get_stock().get_id() == filtered[i].get_id():
-                    self.__mList.unbind_listener()
-                    self.__mList.Select(i)
-                    self.__mList.bind_listener()
-                    break 
+            if filtered is not None and len(filtered) > 0:
+                for i in range(0, len(filtered)):
+                    if self.__mStockViewData.get_stock().get_id() == filtered[i].get_id():
+                        self.__mList.unbind_listener()
+                        self.__mList.Select(i)
+                        self.__mList.bind_listener()
+                        break 
         
     def __update_left_panel_data(self, event):
         if self.__mStockViewData is not None:
@@ -3230,11 +3231,11 @@ class ChartFrame(wx.Frame):
     __mAxes = None
     __mToolbar = None
    
-    def __init__(self, x, y):
-        super().__init__(None, -1, 'CanvasFrame', size=(550, 350))
+    def __init__(self, title, x, y):
+        super().__init__(None, -1, title, size=(550, 350))
 
         self.__mFigure = Figure()
-        self.__mAxes = self.figure.add_subplot()
+        self.__mAxes = self.__mFigure.add_subplot()
 
         self.__mAxes.plot(x, y)
 
