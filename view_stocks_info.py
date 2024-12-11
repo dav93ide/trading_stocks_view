@@ -2547,7 +2547,7 @@ class ViewStocksPanel(BasePanel):
                 self.__mstPrePostMarketPrice.SetLabel("Pre Market: $" + str(self.__mStockViewData.get_stock().get_pre_market_price()))
             else:
                 if self.__mStockViewData.get_stock().get_post_market_price() is not None:
-                    self.__mstPrePostMarketPrice.SetLabel("Post Market: $" + str(self.__mStockViewData.get_stock().get_pre_market_price()))
+                    self.__mstPrePostMarketPrice.SetLabel("Post Market: $" + str(self.__mStockViewData.get_stock().get_post_market_price()))
                 else:
                     self.__mstPrePostMarketPrice.SetLabel("")
             self.__mstMarketCap.SetLabel(TextUtils.convert_number_to_millions_form(self.__mStockViewData.get_stock().get_market_cap()))
@@ -2693,7 +2693,7 @@ class ViewStocksPanel(BasePanel):
             self.__mstPrePostMarketPrice = wx.StaticText(panel, label = "Pre Market: $" + str(self.__mStockViewData.get_stock().get_pre_market_price()))
         else:
             if self.__mStockViewData.get_stock().get_post_market_price() is not None:
-                self.__mstPrePostMarketPrice = wx.StaticText(panel, label = "Post Market: $" + str(self.__mStockViewData.get_stock().get_pre_market_price()))
+                self.__mstPrePostMarketPrice = wx.StaticText(panel, label = "Post Market: $" + str(self.__mStockViewData.get_stock().get_post_market_price()))
             else:
                 self.__mstPrePostMarketPrice = wx.StaticText(panel, label = "")
         
