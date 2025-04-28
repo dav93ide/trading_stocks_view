@@ -4154,7 +4154,7 @@ class ViewStocksPanel(BasePanel):
         else:
             self.__mstMarketPercentage.SetForegroundColour(Colors.RED)
         
-        self.__mstPrice = wx.StaticText(panel, label = "$" + str(self.__mStockViewData.get_stock().get_price() + "     "))
+        self.__mstPrice = wx.StaticText(panel, label = "$" + str(self.__mStockViewData.get_stock().get_price()) + "     ")
         WxUtils.set_font_size_and_bold_and_roman(self.__mstPrice, 20)
         hbs.Add(self.__mstPrice, 0, wx.EXPAND)
         hbs.Add(self.__mstMarketPercentage, 1, wx.EXPAND)
