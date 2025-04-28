@@ -1,0 +1,48 @@
+
+This file lists modules PyInstaller was not able to find. This does not
+necessarily mean this module is required for running your program. Python and
+Python 3rd-party packages include a lot of conditional or optional modules. For
+example the module 'ntpath' only exists on Windows, whereas the module
+'posixpath' only exists on Posix systems.
+
+Types if import:
+* top-level: imported at the top-level - look at these first
+* conditional: imported within an if-statement
+* delayed: imported within a function
+* optional: imported within a try-except-statement
+
+IMPORTANT: Do NOT post this list to the issue-tracker. Use it as a basis for
+            tracking down the missing module yourself. Thanks!
+
+missing module named pwd - imported by posixpath (delayed, conditional, optional), shutil (delayed, optional), tarfile (optional), pathlib (delayed, optional), subprocess (delayed, conditional, optional)
+missing module named grp - imported by shutil (delayed, optional), tarfile (optional), pathlib (delayed, optional), subprocess (delayed, conditional, optional)
+missing module named posix - imported by os (conditional, optional), posixpath (optional), shutil (conditional), importlib._bootstrap_external (conditional)
+missing module named resource - imported by posix (top-level)
+missing module named _frozen_importlib_external - imported by importlib._bootstrap (delayed), importlib (optional), importlib.abc (optional)
+excluded module named _frozen_importlib - imported by importlib (optional), importlib.abc (optional)
+missing module named _posixsubprocess - imported by subprocess (conditional)
+missing module named fcntl - imported by subprocess (optional)
+missing module named dateutil - imported by J:\ToMakeExe\view_stocks_info.py (top-level)
+missing module named 'matplotlib.figure' - imported by J:\ToMakeExe\view_stocks_info.py (top-level)
+missing module named 'matplotlib.backends' - imported by J:\ToMakeExe\view_stocks_info.py (top-level)
+missing module named multipledispatch - imported by J:\ToMakeExe\view_stocks_info.py (top-level)
+missing module named imp - imported by wx.py.editor (delayed), wx.lib.pubsub.core.imp2 (delayed, optional), wx.lib.pubsub.core.topicdefnprovider (delayed, optional)
+missing module named wx.lib.pubsub.core.topicargspecimpl - imported by wx.lib.pubsub.core.topicargspec (top-level)
+missing module named StringIO - imported by six (conditional), wx.lib.pubsub.py2and3 (conditional)
+missing module named wx.lib.pubsub.core.topicmgrimpl - imported by wx.lib.pubsub.core.topicmgr (top-level)
+missing module named wx.lib.pubsub.core.publishermixin - imported by wx.lib.pubsub.core.topicobj (top-level)
+missing module named wx.lib.pubsub.core.listenerimpl - imported by wx.lib.pubsub.core.listener (top-level)
+missing module named wx.lib.pubsub.core.publisher - imported by wx.lib.pubsub.core (top-level)
+missing module named requests - imported by J:\ToMakeExe\view_stocks_info.py (top-level)
+missing module named 'matplotlib.pyplot' - imported by J:\ToMakeExe\view_stocks_info.py (top-level)
+missing module named numpy - imported by J:\ToMakeExe\view_stocks_info.py (top-level)
+missing module named matplotlib - imported by J:\ToMakeExe\view_stocks_info.py (top-level)
+missing module named vms_lib - imported by platform (delayed, optional)
+missing module named 'java.lang' - imported by platform (delayed, optional)
+missing module named java - imported by platform (delayed)
+missing module named _winreg - imported by platform (delayed, optional)
+missing module named __builtin__ - imported by wx.py.sliceshell (delayed, conditional)
+runtime module named six.moves - imported by wx.py.interpreter (delayed, conditional), wx.py.shell (delayed)
+missing module named readline - imported by code (delayed, conditional, optional)
+missing module named winxptheme - imported by wx.lib.agw.aui.dockart (conditional, optional), wx.lib.agw.aui.framemanager (conditional, optional)
+missing module named Carbon - imported by wx.lib.colourutils (conditional, optional)
