@@ -1286,7 +1286,7 @@ class FilterSearchStockPanel(object):
         self.__mMoverBelowTwentyToThirty = moverBelowTwentyToThirty
 
     def set_mover_below_thirty_to_fourty(self, moverBelowThirtyToFourty):
-        self.__mMoverBelowTwentyToThirty = moverBelowThirtyToFourty
+        self.__mMoverBelowThirtyToFourty = moverBelowThirtyToFourty
     #endregion
 
 #region Public Methods
@@ -1301,7 +1301,7 @@ class FilterSearchStockPanel(object):
                 "mMoverAboveTenToTwenty": self.__mMoverAboveTenToTwenty, "mMoverAboveTwentyToThirty" : self.__mMoverAboveTwentyToThirty,
                 "mMoverAboveThirtyToFourty": self.__mMoverAboveThirtyToFourty,  "mMoverBelowZeroToTen" : self.__mMoverBelowZeroToTen,
                 "mMoverBelowTenToTwenty": self.__mMoverBelowTenToTwenty, "mMoverBelowTwentyToThirty" : self.__mMoverBelowTwentyToThirty,
-                "mMoverBelowTwentyToThirty": self.__mMoverBelowTwentyToThirty
+                "mMoverBelowThirtyToFourty": self.__mMoverBelowThirtyToFourty
                 }
 
     def from_json(self, json):
@@ -1325,6 +1325,7 @@ class FilterSearchStockPanel(object):
         self.set_mover_below_zero_to_ten(json["mMoverBelowZeroToTen"])
         self.set_mover_below_ten_to_twenty(json["mMoverBelowTenToTwenty"])
         self.set_mover_below_twenty_to_thirty(json["mMoverBelowTwentyToThirty"])
+        self.set_mover_below_thirty_to_fourty(json["mMoverBelowThirtyToFourty"])
 #enderegion
 
     # To String
@@ -2869,7 +2870,7 @@ class SearchStockPanel(BasePanel):
         self.__mcbMoverBelowTwentyThirty = wx.CheckBox(panel, wx.ID_ANY, label = "-20% - -30%")
         self.__mcbMoverBelowTwentyThirty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_twenty_to_thirty)
         main.Add(self.__mcbMoverBelowTwentyThirty, 1, wx.EXPAND)
-
+        
         self.__mcbMoverBelowThirtyFourty = wx.CheckBox(panel, wx.ID_ANY, label = "-30% - -40%")
         self.__mcbMoverBelowThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_thirty_to_fourty)
         main.Add(self.__mcbMoverBelowThirtyFourty, 1, wx.EXPAND)
