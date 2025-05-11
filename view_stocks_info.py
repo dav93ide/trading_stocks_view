@@ -1,3 +1,6 @@
+# Made By: Z3R0
+# All in one file 'cause of "Pyinstaller"
+
 import wx
 import wx.lib.scrolledpanel
 import wx.lib.agw.aui as aui
@@ -22,7 +25,8 @@ from typing import TypeVar, List
 from dateutil.relativedelta import relativedelta
 import faulthandler
 from requests_html import HTMLSession
-
+from pyglet.window import key
+from functools import singledispatch
 
 class Constants():
     DISPLAY_SIZE_MAIN_FRAME = (1000, 500)
@@ -1531,6 +1535,35 @@ class FilterSearchStockPanel(object):
                 f"#- __mMoverFiftyWeeksBelowTwentyThirty: {self.__mMoverFiftyWeeksBelowTwentyThirty}\n"\
                 f"#- __mMoverFiftyWeeksBelowThirtyFourty: {self.__mMoverFiftyWeeksBelowThirtyFourty}\n"\
                 "####################\n"
+
+CHAR_FLOAT_POINT = "."
+CHAR_MINUS = "-"
+
+class NumberUtils(object):
+
+    @singledispatch
+    def get_num_digits_value(num):
+        pass
+
+    @get_num_digits_value.register(int)
+    def _(num):
+        return len(str(abs(num)))
+
+    @get_num_digits_value.register(float)
+    def _(num):
+        return len(str(abs(num)).replace('.', ''))
+
+    def check_is_int_or_float(value):
+        return type(value) in (int, float)
+
+    def check_input_key_only_numeric_value(value, strng):
+        return value.isnumeric() or (value == CHAR_FLOAT_POINT and not CHAR_FLOAT_POINT in strng and len(strng) > 0) or (value == CHAR_MINUS and not CHAR_MINUS in strng and len(strng) == 0)
+
+    def safe_round(value, roundd):
+        if value is None:
+            return 0
+        else:
+            return round(value, roundd)
 
 ENTRY_ID = "id"
 ENTRY_KEY_EVENT = "keyEvent"
