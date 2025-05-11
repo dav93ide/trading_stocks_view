@@ -4477,12 +4477,13 @@ class ViewStocksPanel(BasePanel):
         
     def __update_left_panel_data(self, event):
         if self.__mStockViewData is not None:
+            self.__mstMarketPercentage.SetLabel(str(round(self.__mStockViewData.get_stock().get_market_change_percent(), 2))  + "%\t\t")
             self.__mstPrice.SetLabel("$" + str(self.__mStockViewData.get_stock().get_price()))
             if self.__mStockViewData.get_stock().get_pre_market_price() is not None:
-                self.__mstPrePostMarketPrice.SetLabel("Pre Market: $" + str(self.__mStockViewData.get_stock().get_pre_market_price()))
+                self.__mstPrePostMarketPrice.SetLabel(Strings.STR_FIELD_PRE_MARKET + str(self.__mStockViewData.get_stock().get_pre_market_price()))
             else:
                 if self.__mStockViewData.get_stock().get_post_market_price() is not None:
-                    self.__mstPrePostMarketPrice.SetLabel("Post Market: $" + str(self.__mStockViewData.get_stock().get_post_market_price()))
+                    self.__mstPrePostMarketPrice.SetLabel(Strings.STR_FIELD_POST_MARKET + str(self.__mStockViewData.get_stock().get_post_market_price()))
                 else:
                     self.__mstPrePostMarketPrice.SetLabel("")
             self.__mstMarketCap.SetLabel(TextUtils.convert_number_to_millions_form(self.__mStockViewData.get_stock().get_market_cap()))
@@ -4627,7 +4628,7 @@ class ViewStocksPanel(BasePanel):
         else:
             self.__mstMarketPercentage.SetForegroundColour(Colors.RED)
         
-        self.__mstPrice = wx.StaticText(panel, label = "$" + str(self.__mStockViewData.get_stock().get_price()) + "     ")
+        self.__mstPrice = wx.StaticText(panel, label = "$" + str(self.__mStockViewData.get_stock().get_price()) + "\t\t")
         WxUtils.set_font_size_and_bold_and_roman(self.__mstPrice, 20)
         hbs.Add(self.__mstPrice, 0, wx.EXPAND)
         hbs.Add(self.__mstMarketPercentage, 1, wx.EXPAND)
