@@ -1,4 +1,4 @@
-# Made By: Z3R0
+# Made By: DAV93IDE                 (Z3R0)
 # All in one file 'cause of "Pyinstaller"
 
 import wx
