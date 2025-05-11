@@ -26,6 +26,7 @@ from requests_html import HTMLSession
 
 class Constants():
     DISPLAY_SIZE_MAIN_FRAME = (1000, 500)
+    DISPLAY_SIZE_SEARCH_STOCKS_FRAME = (1000, 1000)
 
 class Colors():
     WHITE = (255, 255, 255)
@@ -92,6 +93,8 @@ class Strings(object):
     STR_DOWNLOAD_DATA = "Download Data"
     STR_FIELD_PRE_MARKET = "Pre Market: $"
     STR_FIELD_POST_MARKET = "Post Market: $"
+    STR_FIFTY_WEEKS_STOCK_DATA = "50 Weeks Stock Data"
+    STR_STOCK_DATA = "Stock Data"
 
 class APIConstants(object):
 
@@ -1134,15 +1137,18 @@ class Stock(BaseAsset):
 
 class FilterSearchStockPanel(object):
 
-    __mMinPrice = None
     __mMaxPrice = None
-    __mMinVolume = None
+    __mMinPrice = None
     __mMaxVolume = None
+    __mMinVolume = None
 
     __mMaxPriceMover = None
     __mMinPriceMover = None
     __mMaxVolumeMover = None
     __mMinVolumeMover = None
+
+    __mValueMaxMover = None
+    __mValueMinMover = None
 
     __mMoverAboveZero = None
     __mMoverAboveFifty = None
@@ -1160,18 +1166,37 @@ class FilterSearchStockPanel(object):
     __mMoverBelowTwentyToThirty = None
     __mMoverBelowThirtyToFourty = None
 
-    #region - Get Methods
-    def get_min_price(self):
-        return self.__mMinPrice
+    __mFiftyValueMaxMover = None
+    __mFiftyValueMinMover = None
 
+    __mMoverFiftyWeeksAboveZero = None
+    __mMoverFiftyWeeksAboveFifty = None
+    __mMoverFiftyWeeksAboveHundred = None
+    __mMoverFiftyWeeksBelowZero = None
+    __mMoverFiftyWeeksBelowFifty = None
+
+    __mMoverFiftyWeeksAboveZeroToTen = None
+    __mMoverFiftyWeeksAboveTenToTwenty = None
+    __mMoverFiftyWeeksAboveTwentyThirty = None
+    __mMoverFiftyWeeksAboveThirtyFourty = None
+
+    __mMoverFiftyWeeksBelowZeroToTen = None
+    __mMoverFiftyWeeksBelowTenToTwenty = None
+    __mMoverFiftyWeeksBelowTwentyThirty = None
+    __mMoverFiftyWeeksBelowThirtyFourty = None
+
+    #region - Get Methods
     def get_max_price(self):
         return self.__mMaxPrice
 
-    def get_min_volume(self):
-        return self.__mMinVolume
+    def get_min_price(self):
+        return self.__mMinPrice
 
     def get_max_volume(self):
         return self.__mMaxVolume
+
+    def get_min_volume(self):
+        return self.__mMinVolume
 
     def get_max_price_mover(self):
         return self.__mMaxPriceMover
@@ -1184,6 +1209,12 @@ class FilterSearchStockPanel(object):
 
     def get_min_volume_mover(self):
         return self.__mMinVolumeMover
+
+    def get_value_max_mover(self):
+	    return self.__mValueMaxMover
+
+    def get_value_min_mover(self):
+	    return self.__mValueMinMover
 
     def get_mover_above_zero(self):
         return self.__mMoverAboveZero
@@ -1223,20 +1254,65 @@ class FilterSearchStockPanel(object):
 
     def get_mover_below_thirty_to_fourty(self):
         return self.__mMoverBelowThirtyToFourty
+
+    def get_fifty_value_max_mover(self):
+        return self.__mFiftyValueMaxMover
+
+    def get_fifty_value_min_mover(self):
+        return self.__mFiftyValueMinMover
+
+    def get_mover_fifty_weeks_above_zero(self):
+	    return self.__mMoverFiftyWeeksAboveZero 
+
+    def get_mover_fifty_weeks_above_fifty(self):
+        return self.__mMoverFiftyWeeksAboveFifty 
+
+    def get_mover_fifty_weeks_above_hundred(self):
+        return self.__mMoverFiftyWeeksAboveHundred 
+
+    def get_mover_fifty_weeks_below_zero(self):
+        return self.__mMoverFiftyWeeksBelowZero 
+
+    def get_mover_fifty_weeks_below_fifty(self):
+        return self.__mMoverFiftyWeeksBelowFifty 
+
+    def get_mover_fifty_weeks_above_zero_to_ten(self):
+	    return self.__mMoverFiftyWeeksAboveZeroToTen
+
+    def get_mover_fifty_weeks_above_ten_to_twenty(self):
+        return self.__mMoverFiftyWeeksAboveTenToTwenty
+
+    def get_mover_fifty_weeks_above_twenty_to_thirty(self):
+        return self.__mMoverFiftyWeeksAboveTwentyThirty
+
+    def get_mover_fifty_weeks_above_thirty_to_fourty(self):
+        return self.__mMoverFiftyWeeksAboveThirtyFourty
+
+    def get_mover_fifty_weeks_below_zero_to_ten(self):
+        return self.__mMoverFiftyWeeksBelowZeroToTen 
+
+    def get_mover_fifty_weeks_below_ten_to_twenty(self):
+        return self.__mMoverFiftyWeeksBelowTenToTwenty 
+
+    def get_mover_fifty_weeks_below_twenty_to_thirty(self):
+        return self.__mMoverFiftyWeeksBelowTwentyThirty 
+
+    def get_mover_fifty_weeks_below_thirty_to_fourty(self):
+        return self.__mMoverFiftyWeeksBelowThirtyFourty
     #endregion
 
     #region - Set Methods
-    def set_min_price(self, minPrice):
-        self.__mMinPrice = minPrice
-
     def set_max_price(self, maxPrice):
         self.__mMaxPrice = maxPrice
 
-    def set_min_volume(self, minVolume):
-        self.__mMinVolume = minVolume
+    def set_min_price(self, minPrice):
+        self.__mMinPrice = minPrice
 
     def set_max_volume(self, maxVolume):
         self.__mMaxVolume = maxVolume
+
+    def set_min_volume(self, minVolume):
+        self.__mMinVolume = minVolume
 
     def set_max_price_mover(self, maxPriceMover):
         self.__mMaxPriceMover = maxPriceMover
@@ -1249,6 +1325,12 @@ class FilterSearchStockPanel(object):
 
     def set_min_volume_mover(self, minVolumeMover):
         self.__mMinVolumeMover = minVolumeMover
+
+    def set_value_max_mover(self, valueMaxMover):
+	    self.__mValueMaxMover = valueMaxMover
+
+    def set_value_min_mover(self, valueMinMover):
+	    self.__mValueMinMover = valueMinMover
 
     def set_mover_above_zero(self, moverAboveZero):
         self.__mMoverAboveZero = moverAboveZero
@@ -1288,21 +1370,82 @@ class FilterSearchStockPanel(object):
 
     def set_mover_below_thirty_to_fourty(self, moverBelowThirtyToFourty):
         self.__mMoverBelowThirtyToFourty = moverBelowThirtyToFourty
+
+    def set_fifty_value_max_mover(self, fiftyValueMaxMover):
+        self.__mFiftyValueMaxMover = fiftyValueMaxMover
+
+    def set_fifty_value_min_mover(self, fiftyValueMinMover):
+        self.__mFiftyValueMinMover = fiftyValueMinMover
+
+    def set_mover_fifty_weeks_above_zero(self, moverFiftyWeeksAboveZero):
+	    self.__mMoverFiftyWeeksAboveZero  = moverFiftyWeeksAboveZero 
+
+    def set_mover_fifty_weeks_above_fifty(self, moverFiftyWeeksAboveFifty):
+        self.__mMoverFiftyWeeksAboveFifty  = moverFiftyWeeksAboveFifty 
+
+    def set_mover_fifty_weeks_above_hundred(self, moverFiftyWeeksAboveHundred):
+        self.__mMoverFiftyWeeksAboveHundred  = moverFiftyWeeksAboveHundred 
+
+    def set_mover_fifty_weeks_below_zero(self, moverFiftyWeeksBelowZero):
+        self.__mMoverFiftyWeeksBelowZero  = moverFiftyWeeksBelowZero 
+
+    def set_mover_fifty_weeks_below_fifty(self, moverFiftyWeeksBelowFifty):
+        self.__mMoverFiftyWeeksBelowFifty  = moverFiftyWeeksBelowFifty 
+
+    def set_mover_fifty_weeks_above_zero_to_ten(self, moverFiftyWeeksAboveZeroToTen):
+	    self.__mMoverFiftyWeeksAboveZeroToTen = moverFiftyWeeksAboveZeroToTen
+
+    def set_mover_fifty_weeks_above_ten_to_twenty(self, moverFiftyWeeksAboveTenToTwenty):
+        self.__mMoverFiftyWeeksAboveTenToTwenty = moverFiftyWeeksAboveTenToTwenty
+
+    def set_mover_fifty_weeks_above_twenty_to_thirty(self, moverFiftyWeeksAboveTwentyThirty):
+        self.__mMoverFiftyWeeksAboveTwentyThirty = moverFiftyWeeksAboveTwentyThirty
+
+    def set_mover_fifty_weeks_above_thirty_to_fourty(self, moverFiftyWeeksAboveThirtyFourty):
+        self.__mMoverFiftyWeeksAboveThirtyFourty = moverFiftyWeeksAboveThirtyFourty
+
+    def set_mover_fifty_weeks_below_zero_to_ten(self, moverFiftyWeeksBelowZeroToTen):
+        self.__mMoverFiftyWeeksBelowZeroToTen  = moverFiftyWeeksBelowZeroToTen 
+
+    def set_mover_fifty_weeks_below_ten_to_twenty(self, moverFiftyWeeksBelowTenToTwenty):
+        self.__mMoverFiftyWeeksBelowTenToTwenty  = moverFiftyWeeksBelowTenToTwenty 
+
+    def set_mover_fifty_weeks_below_twenty_to_thirty(self, moverFiftyWeeksBelowTwentyThirty):
+        self.__mMoverFiftyWeeksBelowTwentyThirty  = moverFiftyWeeksBelowTwentyThirty 
+
+    def set_mover_fifty_weeks_below_thirty_to_fourty(self, moverFiftyWeeksBelowThirtyFourty):
+        self.__mMoverFiftyWeeksBelowThirtyFourty  = moverFiftyWeeksBelowThirtyFourty 
     #endregion
 
 #region Public Methods
     def to_dict(self):
-        return {"mMinPrice" : self.__mMinPrice, "mMaxPrice": self.__mMaxPrice, "mMinVolume" : self.__mMinVolume, 
-                "mMaxVolume": self.__mMaxVolume, "mMaxPriceMover" : self.__mMaxPriceMover,
+        return {"mMaxPrice": self.__mMaxPrice, "mMinPrice" : self.__mMinPrice, 
+                "mMaxVolume": self.__mMaxVolume, "mMinVolume" : self.__mMinVolume, 
+
                 "mMaxPriceMover" : self.__mMaxPriceMover, "mMinPriceMover" : self.__mMinPriceMover,
                 "mMaxVolumeMover" : self.__mMaxVolumeMover, "mMinVolumeMover"  : self.__mMinVolumeMover,
+
+                "mValueMaxMover": self.__mValueMaxMover, "mValueMinMover": self.__mValueMinMover,
+
                 "mMoverAboveZero" : self.__mMoverAboveZero, "mMoverAboveFifty" : self.__mMoverAboveFifty, "mMoverAboveHundred" : self.__mMoverAboveHundred,
                 "mMoverBelowZero" : self.__mMoverBelowZero, "mMoverBelowFifty" : self.__mMoverBelowFifty,
-                "mMoverAboveZeroToTen": self.__mMoverAboveZeroToTen,
-                "mMoverAboveTenToTwenty": self.__mMoverAboveTenToTwenty, "mMoverAboveTwentyToThirty" : self.__mMoverAboveTwentyToThirty,
-                "mMoverAboveThirtyToFourty": self.__mMoverAboveThirtyToFourty,  "mMoverBelowZeroToTen" : self.__mMoverBelowZeroToTen,
-                "mMoverBelowTenToTwenty": self.__mMoverBelowTenToTwenty, "mMoverBelowTwentyToThirty" : self.__mMoverBelowTwentyToThirty,
-                "mMoverBelowThirtyToFourty": self.__mMoverBelowThirtyToFourty
+
+                "mMoverAboveZeroToTen": self.__mMoverAboveZeroToTen, "mMoverAboveTenToTwenty": self.__mMoverAboveTenToTwenty, 
+                "mMoverAboveTwentyToThirty" : self.__mMoverAboveTwentyToThirty, "mMoverAboveThirtyToFourty": self.__mMoverAboveThirtyToFourty,  
+
+                "mMoverBelowZeroToTen" : self.__mMoverBelowZeroToTen, "mMoverBelowTenToTwenty": self.__mMoverBelowTenToTwenty, 
+                "mMoverBelowTwentyToThirty" : self.__mMoverBelowTwentyToThirty, "mMoverBelowThirtyToFourty": self.__mMoverBelowThirtyToFourty,
+
+                "mFiftyValueMaxMover": self.__mFiftyValueMaxMover, "mFiftyValueMinMover": self.__mFiftyValueMinMover,
+
+                "mMoverFiftyWeeksAboveZero": self.__mMoverFiftyWeeksAboveZero, "mMoverFiftyWeeksAboveFifty": self.__mMoverFiftyWeeksAboveFifty, "mMoverFiftyWeeksAboveHundred": self.__mMoverFiftyWeeksAboveHundred,
+                "mMoverFiftyWeeksBelowZero": self.__mMoverFiftyWeeksBelowZero, "mMoverFiftyWeeksBelowFifty": self.__mMoverFiftyWeeksBelowFifty,
+
+                "mMoverFiftyWeeksAboveZeroToTen": self.__mMoverFiftyWeeksAboveZeroToTen, "mMoverFiftyWeeksAboveTenToTwenty": self.__mMoverFiftyWeeksAboveTenToTwenty,
+                "mMoverFiftyWeeksAboveTwentyThirty": self.__mMoverFiftyWeeksAboveTwentyThirty, "mMoverFiftyWeeksAboveThirtyFourty": self.__mMoverFiftyWeeksAboveThirtyFourty,
+
+                "mMoverFiftyWeeksBelowZeroToTen": self.__mMoverFiftyWeeksBelowZeroToTen, "mMoverFiftyWeeksBelowTenToTwenty": self.__mMoverFiftyWeeksBelowTenToTwenty,
+                "mMoverFiftyWeeksBelowTwentyThirty": self.__mMoverFiftyWeeksBelowTwentyThirty, "mMoverFiftyWeeksBelowThirtyFourty": self.__mMoverFiftyWeeksBelowThirtyFourty
                 }
 
     def from_json(self, json):
@@ -1314,6 +1457,8 @@ class FilterSearchStockPanel(object):
         self.set_min_price_mover(json["mMinPriceMover"])
         self.set_max_volume_mover(json["mMaxVolumeMover"])
         self.set_min_volume_mover(json["mMinVolumeMover"])
+        self.set_value_max_mover(json["mValueMaxMover"])
+        self.set_value_min_mover(json["mValueMinMover"])
         self.set_mover_above_zero(json["mMoverAboveZero"])
         self.set_mover_above_fifty(json["mMoverAboveFifty"])
         self.set_mover_above_hundred(json["mMoverAboveHundred"])
@@ -1327,21 +1472,39 @@ class FilterSearchStockPanel(object):
         self.set_mover_below_ten_to_twenty(json["mMoverBelowTenToTwenty"])
         self.set_mover_below_twenty_to_thirty(json["mMoverBelowTwentyToThirty"])
         self.set_mover_below_thirty_to_fourty(json["mMoverBelowThirtyToFourty"])
+        self.set_fifty_value_max_mover(json["mFiftyValueMaxMover"])
+        self.set_fifty_value_min_mover(json["mFiftyValueMinMover"])
+        self.set_mover_fifty_weeks_above_zero(json["mMoverFiftyWeeksAboveZero"])
+        self.set_mover_fifty_weeks_above_fifty(json["mMoverFiftyWeeksAboveFifty"])
+        self.set_mover_fifty_weeks_above_hundred(json["mMoverFiftyWeeksAboveHundred"])
+        self.set_mover_fifty_weeks_below_zero(json["mMoverFiftyWeeksBelowZero"])
+        self.set_mover_fifty_weeks_below_fifty(json["mMoverFiftyWeeksBelowFifty"])
+        self.set_mover_fifty_weeks_above_zero_to_ten(json["mMoverFiftyWeeksAboveZeroToTen"])
+        self.set_mover_fifty_weeks_above_ten_to_twenty(json["mMoverFiftyWeeksAboveTenToTwenty"])
+        self.set_mover_fifty_weeks_above_twenty_to_thirty(json["mMoverFiftyWeeksAboveTwentyThirty"])
+        self.set_mover_fifty_weeks_above_thirty_to_fourty(json["mMoverFiftyWeeksAboveThirtyFourty"])
+        self.set_mover_fifty_weeks_below_zero_to_ten(json["mMoverFiftyWeeksBelowZeroToTen"])
+        self.set_mover_fifty_weeks_below_ten_to_twenty(json["mMoverFiftyWeeksBelowTenToTwenty"])
+        self.set_mover_fifty_weeks_below_twenty_to_thirty(json["mMoverFiftyWeeksBelowTwentyThirty"])
+        self.set_mover_fifty_weeks_below_thirty_to_fourty(json["mMoverFiftyWeeksBelowThirtyFourty"])
 #enderegion
 
     # To String
     def __str__(self):
         return  "####################\n"\
-                f"# {FilterSearchStockPanel.__name__}\n"\
-                f"#- __mMinPrice: {self.__mMinPrice}\n"\
                 f"#- __mMaxPrice: {self.__mMaxPrice}\n"\
-                f"#- __mMinVolume: {self.__mMinVolume}\n"\
+                f"#- __mMinPrice: {self.__mMinPrice}\n"\
                 f"#- __mMaxVolume: {self.__mMaxVolume}\n"\
+                f"#- __mMinVolume: {self.__mMinVolume}\n"\
                 f"#- __mMaxPriceMover: {self.__mMaxPriceMover}\n"\
+                f"#- __mMinPriceMover: {self.__mMinPriceMover}\n"\
                 f"#- __mMaxVolumeMover: {self.__mMaxVolumeMover}\n"\
                 f"#- __mMinVolumeMover: {self.__mMinVolumeMover}\n"\
+                f"#- __mValueMaxMover: {self.__mValueMaxMover}\n"\
+                f"#- __mValueMinMover: {self.__mValueMinMover}\n"\
                 f"#- __mMoverAboveZero: {self.__mMoverAboveZero}\n"\
                 f"#- __mMoverAboveFifty: {self.__mMoverAboveFifty}\n"\
+                f"#- __mMoverAboveHundred: {self.__mMoverAboveHundred}\n"\
                 f"#- __mMoverBelowZero: {self.__mMoverBelowZero}\n"\
                 f"#- __mMoverBelowFifty: {self.__mMoverBelowFifty}\n"\
                 f"#- __mMoverAboveZeroToTen: {self.__mMoverAboveZeroToTen}\n"\
@@ -1351,8 +1514,130 @@ class FilterSearchStockPanel(object):
                 f"#- __mMoverBelowZeroToTen: {self.__mMoverBelowZeroToTen}\n"\
                 f"#- __mMoverBelowTenToTwenty: {self.__mMoverBelowTenToTwenty}\n"\
                 f"#- __mMoverBelowTwentyToThirty: {self.__mMoverBelowTwentyToThirty}\n"\
-                f"#- __mMoverBelowTwentyToThirty: {self.__mMoverBelowTwentyToThirty}\n"\
-                "####################"
+                f"#- __mMoverBelowThirtyToFourty: {self.__mMoverBelowThirtyToFourty}\n"\
+                f"#- __mFiftyValueMaxMover: {self.__mFiftyValueMaxMover}\n"\
+                f"#- __mFiftyValueMinMover: {self.__mFiftyValueMinMover}\n"\
+                f"#- __mMoverFiftyWeeksAboveZero: {self.__mMoverFiftyWeeksAboveZero}\n"\
+                f"#- __mMoverFiftyWeeksAboveFifty: {self.__mMoverFiftyWeeksAboveFifty}\n"\
+                f"#- __mMoverFiftyWeeksAboveHundred: {self.__mMoverFiftyWeeksAboveHundred}\n"\
+                f"#- __mMoverFiftyWeeksBelowZero: {self.__mMoverFiftyWeeksBelowZero}\n"\
+                f"#- __mMoverFiftyWeeksBelowFifty: {self.__mMoverFiftyWeeksBelowFifty}\n"\
+                f"#- __mMoverFiftyWeeksAboveZeroToTen: {self.__mMoverFiftyWeeksAboveZeroToTen}\n"\
+                f"#- __mMoverFiftyWeeksAboveTenToTwenty: {self.__mMoverFiftyWeeksAboveTenToTwenty}\n"\
+                f"#- __mMoverFiftyWeeksAboveTwentyThirty: {self.__mMoverFiftyWeeksAboveTwentyThirty}\n"\
+                f"#- __mMoverFiftyWeeksAboveThirtyFourty: {self.__mMoverFiftyWeeksAboveThirtyFourty}\n"\
+                f"#- __mMoverFiftyWeeksBelowZeroToTen: {self.__mMoverFiftyWeeksBelowZeroToTen}\n"\
+                f"#- __mMoverFiftyWeeksBelowTenToTwenty: {self.__mMoverFiftyWeeksBelowTenToTwenty}\n"\
+                f"#- __mMoverFiftyWeeksBelowTwentyThirty: {self.__mMoverFiftyWeeksBelowTwentyThirty}\n"\
+                f"#- __mMoverFiftyWeeksBelowThirtyFourty: {self.__mMoverFiftyWeeksBelowThirtyFourty}\n"\
+                "####################\n"
+
+ENTRY_ID = "id"
+ENTRY_KEY_EVENT = "keyEvent"
+ENTRY_SELECTION_EVENT = "selectionEvent"
+
+MASK_STARTED_RIGHT_SELECTION = 1
+MASK_STARTED_LEFT_SELECTION = -1
+
+class KeyboardEventUtils(object):
+
+    __mLastEvt = {}
+
+    def on_change_text_check_is_int_value(self, evt):
+        txt = evt.GetEventObject()
+        strng = txt.GetValue()
+        rawKey = evt.GetRawKeyCode()
+        modifiers = evt.GetModifiers()
+
+        if KeyboardEventUtils.__mLastEvt != None and len(KeyboardEventUtils.__mLastEvt) > 0 and KeyboardEventUtils.__mLastEvt[ENTRY_ID] != txt.GetId():
+            self._mLastEvt = {}
+
+        if chr(rawKey).isnumeric() or (rawKey == key.PERIOD and not chr(rawKey) in strng and len(strng) > 0) or (rawKey == key.MINUS and not chr(rawKey) in strng and (len(strng) == 0 or txt.GetInsertionPoint() == 0)):
+            pos = txt.GetInsertionPoint()
+            txt.SetValue(str(float(txt.GetValue()[:pos] + chr(rawKey) + txt.GetValue()[pos:])))
+            txt.SetInsertionPoint(pos + 1)
+
+        elif (modifiers == 4 or modifiers == key.MOD_SHIFT) and rawKey == key.LEFT:             # 4 (?) key.MOD_SHIFT (?)
+            pos = txt.GetInsertionPoint()
+            rng = list(txt.GetSelection())
+
+            if rng[0] == rng[1] and ENTRY_SELECTION_EVENT in KeyboardEventUtils.__mLastEvt:
+                del KeyboardEventUtils.__mLastEvt[ENTRY_SELECTION_EVENT]
+
+            if ENTRY_SELECTION_EVENT in KeyboardEventUtils.__mLastEvt and KeyboardEventUtils.__mLastEvt[ENTRY_SELECTION_EVENT] == MASK_STARTED_RIGHT_SELECTION:
+
+                rng[1] = rng[1] - 1
+            else:
+                KeyboardEventUtils.__mLastEvt[ENTRY_SELECTION_EVENT] = MASK_STARTED_LEFT_SELECTION
+                rng[0] = rng[0] - 1
+
+            txt.SetSelection(rng[0], rng[1])
+
+        elif (modifiers == 4 or modifiers == key.MOD_SHIFT):                                    # 4 (?) key.MOD_SHIFT (?)
+            pos = txt.GetInsertionPoint()
+            rng = list(txt.GetSelection())
+
+            if rng[0] == rng[1] and ENTRY_SELECTION_EVENT in KeyboardEventUtils.__mLastEvt:
+                del KeyboardEventUtils.__mLastEvt[ENTRY_SELECTION_EVENT]
+
+            if ENTRY_SELECTION_EVENT in KeyboardEventUtils.__mLastEvt and KeyboardEventUtils.__mLastEvt[ENTRY_SELECTION_EVENT] == MASK_STARTED_LEFT_SELECTION:
+                rng[0] = rng[0] + 1
+            else:
+                KeyboardEventUtils.__mLastEvt[ENTRY_SELECTION_EVENT] = MASK_STARTED_RIGHT_SELECTION
+                rng[1] = rng[1] + 1
+
+            txt.SetSelection(rng[0], rng[1])
+
+        elif rawKey == key.LEFT:
+            rng = list(txt.GetSelection())
+
+            if rng[0] != rng[1]:
+                txt.SetInsertionPoint(rng[0])
+            else:
+                txt.SetInsertionPoint(txt.GetInsertionPoint() - 1)
+
+        elif rawKey == key.RIGHT:
+            rng = list(txt.GetSelection())
+
+            if rng[0] != rng[1]:
+                txt.SetInsertionPoint(rng[1])
+            else:
+                txt.SetInsertionPoint(txt.GetInsertionPoint() + 1)
+
+        elif rawKey == key.UP or rawKey == key.DOWN:
+            pass
+
+        elif rawKey == key.BACKSPACE:                                              
+            pos = txt.GetInsertionPoint()
+            if txt.GetStringSelection() == "":
+                txt.SetValue(txt.GetValue()[:pos-1] + txt.GetValue()[pos:])
+                txt.SetInsertionPoint(pos - 0x1)
+            else:
+                r = txt.GetSelection()
+                txt.SetValue(txt.GetValue()[:r[0]] + txt.GetValue()[r[1]:])
+                txt.SetInsertionPoint(pos)
+
+        elif rawKey == key.DELETE:
+            pos = txt.GetInsertionPoint()
+            if txt.GetStringSelection() == "":
+                txt.SetValue(txt.GetValue()[:pos] + txt.GetValue()[pos+1:])
+            else:
+                r = txt.GetSelection()
+                txt.SetValue(txt.GetValue()[:r[0]] + txt.GetValue()[r[1]:])
+            txt.SetInsertionPoint(pos)
+
+        elif modifiers == key.MOD_CTRL and rawKey == key.A:
+            txt.SelectAll()
+
+        else:
+
+            KeyboardEventUtils.__mLastEvt[ENTRY_ID] = txt.GetId()
+            KeyboardEventUtils.__mLastEvt[ENTRY_KEY_EVENT] = evt
+            return False
+
+        KeyboardEventUtils.__mLastEvt[ENTRY_ID] = txt.GetId()
+        KeyboardEventUtils.__mLastEvt[ENTRY_KEY_EVENT] = evt
+        return True
 
 class StockView(object):
     
@@ -2401,11 +2686,11 @@ class StocksViewList(wx.ListCtrl):
         if self.__mFilteredItems:
             for i in range(0, len(self.__mFilteredItems)):
                 item = self.__mFilteredItems[i]
-                if item.get_market_change_percent() is not None and item.get_market_change_percent() > 0:
-                    self.InsertItem(i, "+" + str(round(item.get_market_change_percent(), 2)))
+                if float(item.get_market_change_percent()) is not None and float(item.get_market_change_percent()) > 0:
+                    self.InsertItem(i, "+" + str(round(float(item.get_market_change_percent()), 2)))
                 else:
-                    if item.get_market_change_percent() is not None:
-                        self.InsertItem(i, str(round(item.get_market_change_percent(), 2)))
+                    if float(item.get_market_change_percent()) is not None:
+                        self.InsertItem(i, str(round(float(item.get_market_change_percent()), 2)))
                     else:
                         self.InsertItem(i, str(0))
                 self.SetItem(i, 1, str(item.get_sign()))
@@ -2429,7 +2714,7 @@ class StocksViewList(wx.ListCtrl):
                 item.set_volume(0) 
         self.filter_name()
         if self.__mFilterData is not None:
-            self.filter_prices()
+            self.filter_values()
             self.filter_order()
         self.populate_list()
 
@@ -2495,80 +2780,183 @@ class StocksViewList(wx.ListCtrl):
                 self.__mFilteredItems[i] = one
                 self.__mFilteredItems[pos] = temp
 
-    def filter_prices(self):
+    def filter_values(self):
         if self.__mFilterData is not None:
             items = []
             for item in self.__mFilteredItems:
-                if self.__mFilterData.get_min_price():
+
+                if self.__mFilterData.get_max_price() is not None and self.__mFilterData.get_max_price() and self.__mFilterData.get_min_price() is not None and self.__mFilterData.get_min_price():
+                    if item.get_price() >= float(self.__mFilterData.get_min_price()) and item.get_price() <= float(self.__mFilterData.get_max_price()):
+                        items.append(item)
+                elif self.__mFilterData.get_min_price() is not None and self.__mFilterData.get_min_price():
                     if item.get_price() >= float(self.__mFilterData.get_min_price()):
                         items.append(item)
-
-                if self.__mFilterData.get_max_price():
+                elif self.__mFilterData.get_max_price() is not None and self.__mFilterData.get_max_price():
                     if item.get_price() <= float(self.__mFilterData.get_max_price()):
                         items.append(item)
+                        
 
-                if self.__mFilterData.get_min_volume():
+                if self.__mFilterData.get_min_volume() is not None and self.__mFilterData.get_min_volume() and self.__mFilterData.get_max_volume() is not None and self.__mFilterData.get_max_volume():
+                    if item.get_volume() >= float(self.__mFilterData.get_min_volume()) and item.get_volume() <= float(self.__mFilterData.get_max_volume()):
+                        items.append(item)
+                elif self.__mFilterData.get_min_volume() is not None and self.__mFilterData.get_min_volume():
                     if item.get_volume() >= float(self.__mFilterData.get_min_volume()):
                         items.append(item)
-
-                if self.__mFilterData.get_max_volume():
+                elif self.__mFilterData.get_max_volume() is not None and self.__mFilterData.get_max_volume():
                     if item.get_volume() <= float(self.__mFilterData.get_max_volume()):
                         items.append(item)
 
-                if self.__mFilterData.get_mover_above_zero():
-                    if item.get_market_change_percent() >= 0:
+                if self.__mFilterData.get_value_max_mover() is not None and self.__mFilterData.get_value_max_mover() and self.__mFilterData.get_value_min_mover() is not None and self.__mFilterData.get_value_min_mover():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= float(self.__mFilterData.get_value_max_mover()) and float(item.get_market_change_percent()) >= float(self.__mFilterData.get_value_min_mover()):
+                        items.append(item)
+                elif self.__mFilterData.get_value_min_mover() is not None and self.__mFilterData.get_value_min_mover():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= float(self.__mFilterData.get_value_min_mover()):
+                        items.append(item)
+                elif self.__mFilterData.get_value_max_mover() is not None and self.__mFilterData.get_value_max_mover():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= float(self.__mFilterData.get_value_max_mover()):
                         items.append(item)
 
-                if self.__mFilterData.get_mover_above_fifty():
-                    if item.get_market_change_percent() >= 50:
+
+                if self.__mFilterData.get_mover_above_zero() is not None and self.__mFilterData.get_mover_above_zero():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 0:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_above_fifty() is not None and self.__mFilterData.get_mover_above_fifty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 50:
                         items.append(item)
 
-                if self.__mFilterData.get_mover_above_hundred():
-                    if item.get_market_change_percent() >= 100:
+                if self.__mFilterData.get_mover_above_hundred() is not None and self.__mFilterData.get_mover_above_hundred():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 100:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_zero() is not None and self.__mFilterData.get_mover_below_zero():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= 0:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_fifty() is not None and self.__mFilterData.get_mover_below_fifty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= -50:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_above_zero_to_ten() is not None and self.__mFilterData.get_mover_above_zero_to_ten():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 0 and float(item.get_market_change_percent()) <= 10:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_above_ten_to_twenty() is not None and self.__mFilterData.get_mover_above_ten_to_twenty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 10 and float(item.get_market_change_percent()) <= 20:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_above_twenty_to_thirty() is not None and self.__mFilterData.get_mover_above_twenty_to_thirty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 20 and float(item.get_market_change_percent()) <= 30:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_above_thirty_to_fourty() is not None and self.__mFilterData.get_mover_above_thirty_to_fourty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 30 and float(item.get_market_change_percent()) <= 40:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_zero_to_ten() is not None and self.__mFilterData.get_mover_below_zero_to_ten():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= 0 and float(item.get_market_change_percent()) >= -10:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_ten_to_twenty() is not None and self.__mFilterData.get_mover_below_ten_to_twenty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= -10 and float(item.get_market_change_percent()) >= -20:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_twenty_to_thirty() is not None and self.__mFilterData.get_mover_below_twenty_to_thirty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= -20 and float(item.get_market_change_percent()) >= -30:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_thirty_to_fourty() is not None and self.__mFilterData.get_mover_below_thirty_to_fourty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= -30 and float(item.get_market_change_percent()) >= -40:
                         items.append(item)
 
-                if self.__mFilterData.get_mover_below_zero():
-                    if item.get_market_change_percent() <= 0:
+                if self.__mFilterData.get_fifty_value_max_mover() is not None and self.__mFilterData.get_fifty_value_max_mover() and self.__mFilterData.get_fifty_value_min_mover() is not None and self.__mFilterData.get_fifty_value_min_mover():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) <= float(self.__mFilterData.get_fifty_value_max_mover()) and float(item.get_market_change_percent()) >= float(self.__mFilterData.get_fifty_value_min_mover()):
+                        items.append(item)
+                elif self.__mFilterData.get_fifty_value_max_mover() is not None and self.__mFilterData.get_fifty_value_max_mover():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) <= float(self.__mFilterData.get_fifty_value_max_mover()):
+                        items.append(item)
+                elif self.__mFilterData.get_fifty_value_min_mover() is not None and self.__mFilterData.get_fifty_value_min_mover():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) >= float(self.__mFilterData.get_fifty_value_min_mover()):
+                        print("HERE")
                         items.append(item)
 
-                if self.__mFilterData.get_mover_below_fifty():
-                    if item.get_market_change_percent() <= -50:
+                if self.__mFilterData.get_mover_fifty_weeks_above_zero() is not None and self.__mFilterData.get_mover_fifty_weeks_above_zero():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) >= 0:
                         items.append(item)
+                        
 
-                if self.__mFilterData.get_mover_above_zero_to_ten():
-                    if item.get_market_change_percent() >= 0 and item.get_market_change_percent() <= 10:
+                if self.__mFilterData.get_mover_fifty_weeks_above_fifty() is not None and self.__mFilterData.get_mover_fifty_weeks_above_fifty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) >= 50:
                         items.append(item)
+                        
 
-                if self.__mFilterData.get_mover_above_ten_to_twenty():
-                    if item.get_market_change_percent() >= 10 and item.get_market_change_percent() <= 20:
+                if self.__mFilterData.get_mover_fifty_weeks_above_hundred() is not None and self.__mFilterData.get_mover_fifty_weeks_above_hundred():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) >= 100:
                         items.append(item)
+                        
 
-                if self.__mFilterData.get_mover_above_twenty_to_thirty():
-                    if item.get_market_change_percent() >= 20 and item.get_market_change_percent() <= 30:
+                if self.__mFilterData.get_mover_fifty_weeks_below_zero() is not None and self.__mFilterData.get_mover_fifty_weeks_below_zero():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < 0:
                         items.append(item)
+                        
 
-                if self.__mFilterData.get_mover_above_thirty_to_fourty():
-                    if item.get_market_change_percent() >= 30 and item.get_market_change_percent() <= 40:
+                if self.__mFilterData.get_mover_fifty_weeks_below_fifty() is not None and self.__mFilterData.get_mover_fifty_weeks_below_fifty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < 0:
                         items.append(item)
+                        
 
-                if self.__mFilterData.get_mover_below_zero_to_ten():
-                    if item.get_market_change_percent() <= 0 and item.get_market_change_percent() >= -10:
+                if self.__mFilterData.get_mover_fifty_weeks_above_zero_to_ten() is not None and self.__mFilterData.get_mover_fifty_weeks_above_zero_to_ten():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) > 0 and float(item.get_fifty_two_weeks_perc_change()) <= 10:
                         items.append(item)
+                        
 
-                if self.__mFilterData.get_mover_below_ten_to_twenty():
-                    if item.get_market_change_percent() <= -10 and item.get_market_change_percent() >= -20:
+                if self.__mFilterData.get_mover_fifty_weeks_above_ten_to_twenty() is not None and self.__mFilterData.get_mover_fifty_weeks_above_ten_to_twenty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) > 10 and float(item.get_fifty_two_weeks_perc_change()) <= 20:
                         items.append(item)
+                        
 
-                if self.__mFilterData.get_mover_below_twenty_to_thirty():
-                    if item.get_market_change_percent() <= -20 and item.get_market_change_percent() >= -30:
+                if self.__mFilterData.get_mover_fifty_weeks_above_twenty_to_thirty() is not None and self.__mFilterData.get_mover_fifty_weeks_above_twenty_to_thirty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) > 20 and float(item.get_fifty_two_weeks_perc_change()) <= 30:
                         items.append(item)
+                        
 
-                if self.__mFilterData.get_mover_below_thirty_to_fourty():
-                    if item.get_market_change_percent() <= -30 and item.get_market_change_percent() >= -40:
+                if self.__mFilterData.get_mover_fifty_weeks_above_thirty_to_fourty() is not None and self.__mFilterData.get_mover_fifty_weeks_above_thirty_to_fourty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) > 30 and float(item.get_fifty_two_weeks_perc_change()) <= 40:
                         items.append(item)
+                        
 
-                if len(items) > 0:
-                    self.__mFilteredItems = items
+                if self.__mFilterData.get_mover_fifty_weeks_below_zero_to_ten() is not None and self.__mFilterData.get_mover_fifty_weeks_below_zero_to_ten():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < 0 and float(item.get_fifty_two_weeks_perc_change()) > -10:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_below_ten_to_twenty() is not None and self.__mFilterData.get_mover_fifty_weeks_below_ten_to_twenty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < -10 and float(item.get_fifty_two_weeks_perc_change()) > -20:
+                        items.append(item)
+                        
+                
+                if self.__mFilterData.get_mover_fifty_weeks_below_twenty_to_thirty() is not None and self.__mFilterData.get_mover_fifty_weeks_below_twenty_to_thirty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < -20 and float(item.get_fifty_two_weeks_perc_change()) > -30:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_below_thirty_to_fourty() is not None and self.__mFilterData.get_mover_fifty_weeks_below_thirty_to_fourty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < -30 and float(item.get_fifty_two_weeks_perc_change()) > -40:
+                        items.append(item)
+                        
+            if len(items) > 0:
+                self.__mFilteredItems = items
         else:
             self.__mFilteredItems = self.__mItems
 
@@ -2636,6 +3024,11 @@ class SearchStockPanel(BasePanel):
     __mcbMaxVolumeMover = None
     __mcbMinVolumeMover = None
 
+    __mstStockData = None
+
+    __mtxMaxValueMover = None
+    __mtxMinValueMover = None
+
     __mcbMoverAboveZero = None
     __mcbMoverAboveFifty = None
     __mcbMoverAboveHundred = None
@@ -2653,12 +3046,35 @@ class SearchStockPanel(BasePanel):
     __mcbMoverBelowTwentyThirty = None
     __mcbMoverBelowThirtyFourty = None
 
+    __mstFiftyWeeksData = None
+
+    __mtxFiftyMaxValueMover = None
+    __mtxFiftyMinValueMover = None
+
+    __mcbMoverFiftyWeeksAboveZero = None
+    __mcbMoverFiftyWeeksAboveFifty = None
+    __mcbMoverFiftyWeeksAboveHundred = None
+    __mcbMoverFiftyWeeksBelowZero = None
+    __mcbMoverFiftyWeeksBelowFifty = None
+
+    __mcbMoverFiftyWeeksAboveZeroToTen = None
+    __mcbMoverFiftyWeeksAboveTenToTwenty = None
+    __mcbMoverFiftyWeeksAboveTwentyThirty = None
+    __mcbMoverFiftyWeeksAboveThirtyFourty = None
+
+    __mcbMoverFiftyWeeksBelowZeroToTen = None
+    __mcbMoverFiftyWeeksBelowTenToTwenty = None
+    __mcbMoverFiftyWeeksBelowTwentyThirty = None
+    __mcbMoverFiftyWeeksBelowThirtyFourty = None
+
+    __mstDividendData = None
+
     __mFilterSearchStockPanel = FilterSearchStockPanel()
 
     def __init__(self, parent, size, filterData):
         super().__init__(parent, size)
+        self.__mFilterSearchStockPanel = filterData
         self.__init_layout()
-        self.init_filter_search_stock_panel()
 
 #region - Private Methods
     def __init_layout(self):
@@ -2672,9 +3088,21 @@ class SearchStockPanel(BasePanel):
         vbs.AddSpacer(10)
         vbs.Add(self.__get_panels_max_min_movers_volumes(), 0, wx.EXPAND)
         vbs.AddSpacer(10)
+        vbs.Add(self.__get_panel_text_stock_data(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_values_max_min_mover(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
         vbs.Add(self.__get_panels_one_percentage_movers(), 0, wx.EXPAND)
         vbs.AddSpacer(10)
         vbs.Add(self.__get_panels_two_percentage_movers(), 0, wx.EXPAND)
+        vbs.AddSpacer(30)
+        vbs.Add(self.__get_panel_text_fifty_weeks_data(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_fifty_weeks_values_max_min_mover(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_two_fifty_weeks_percentage_movers(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_three_percentage_fifty_weeks_movers(), 0, wx.EXPAND)
         vbs.AddSpacer(100)
         vbs.Add(self.__get_panel_buttons(), 0, wx.EXPAND)
 
@@ -2708,29 +3136,39 @@ class SearchStockPanel(BasePanel):
     def __get_panels_min_max_price(self):
         panel = wx.Panel(self)
         main = wx.BoxSizer(wx.HORIZONTAL)
-        main.Add(self.__get_panel_min_price(panel), 1, wx.EXPAND)
-        main.AddSpacer(25)
-        main.Add(self.__get_panel_max_price(panel), 1, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
 
-    def __get_panel_min_price(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.VERTICAL)
-        main.Add(wx.StaticText(panel, label = "Min Price", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
-        self.__mtxMinPrice = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
-        self.__mtxMinPrice.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
-        main.Add(self.__mtxMinPrice, 0, wx.EXPAND)
+        main.Add(self.__get_panel_max_price(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_min_price(panel), 1, wx.EXPAND)
+
         panel.SetSizer(main)
         return panel
 
     def __get_panel_max_price(self, parent):
         panel = wx.Panel(parent)
         main = wx.BoxSizer(wx.VERTICAL)
+
         main.Add(wx.StaticText(panel, label = "Max Price", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
         self.__mtxMaxPrice = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
         self.__mtxMaxPrice.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
         main.Add(self.__mtxMaxPrice, 0, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_max_price():
+            self.__mtxMaxPrice.SetValue(self.__mFilterSearchStockPanel.get_max_price())
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_min_price(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "Min Price", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxMinPrice = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxMinPrice.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxMinPrice, 0, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_min_price():
+            self.__mtxMinPrice.SetValue(self.__mFilterSearchStockPanel.get_min_price())
+
         panel.SetSizer(main)
         return panel
 #endregion
@@ -2739,53 +3177,71 @@ class SearchStockPanel(BasePanel):
     def __get_panels_min_max_volume(self):
         panel = wx.Panel(self)
         main = wx.BoxSizer(wx.HORIZONTAL)
-        main.Add(self.__get_panel_min_volume(panel), 1, wx.EXPAND)
-        main.AddSpacer(25)
-        main.Add(self.__get_panel_max_volume(panel), 1, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
 
-    def __get_panel_min_volume(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.VERTICAL)
-        main.Add(wx.StaticText(panel, label = "Min Volume", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
-        self.__mtxMinVolume = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
-        self.__mtxMinVolume.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
-        main.Add(self.__mtxMinVolume, 0, wx.EXPAND)
+        main.Add(self.__get_panel_max_volume(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_min_volume(panel), 1, wx.EXPAND)
+
         panel.SetSizer(main)
         return panel
 
     def __get_panel_max_volume(self, parent):
         panel = wx.Panel(parent)
         main = wx.BoxSizer(wx.VERTICAL)
+
         main.Add(wx.StaticText(panel, label = "Max Volume", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
         self.__mtxMaxVolume = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
         self.__mtxMaxVolume.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
         main.Add(self.__mtxMaxVolume, 0, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_max_volume():
+            self.__mtxMaxVolume.SetValue(self.__mFilterSearchStockPanel.get_max_volume())
+
         panel.SetSizer(main)
         return panel
+
+    def __get_panel_min_volume(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "Min Volume", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxMinVolume = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxMinVolume.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxMinVolume, 0, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_min_volume():
+            self.__mtxMinVolume.SetValue(self.__mFilterSearchStockPanel.get_min_volume())
+
+        panel.SetSizer(main)
+        return panel
+
 #endregion
 
 #region - Min Max Movers / Volumes Methods
     def __get_panels_max_min_movers_volumes(self):
         panel = wx.Panel(self)
         main = wx.BoxSizer(wx.HORIZONTAL)
+
         main.Add(self.__get_panel_min_max_movers(panel), 1, wx.EXPAND)
         main.AddSpacer(25)
         main.Add(self.__get_panel_min_max_volumes(panel), 1, wx.EXPAND)
+
         panel.SetSizer(main)
         return panel
 
     def __get_panel_min_max_movers(self, parent):
         panel = wx.Panel(parent)
         main = wx.BoxSizer(wx.HORIZONTAL)
+
         self.__mcbMaxPriceMover = wx.CheckBox(panel, wx.ID_ANY, label = "Max Mover")
         self.__mcbMaxPriceMover.Bind(wx.EVT_CHECKBOX, self.__on_check_max_mover)
         main.Add(self.__mcbMaxPriceMover, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_max_price_mover():
+            self.__mcbMaxPriceMover.SetValue(True)
 
         self.__mcbMinPriceMover = wx.CheckBox(panel, wx.ID_ANY, label = "Min Mover")
         self.__mcbMinPriceMover.Bind(wx.EVT_CHECKBOX, self.__on_check_min_mover)
         main.Add(self.__mcbMinPriceMover, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_min_price_mover():
+            self.__mcbMinPriceMover.SetValue(True)
 
         panel.SetSizer(main)
         return panel
@@ -2793,13 +3249,18 @@ class SearchStockPanel(BasePanel):
     def __get_panel_min_max_volumes(self, parent):
         panel = wx.Panel(parent)
         main = wx.BoxSizer(wx.HORIZONTAL)
+
         self.__mcbMaxVolumeMover = wx.CheckBox(panel, wx.ID_ANY, label = "Max Volume")
         self.__mcbMaxVolumeMover.Bind(wx.EVT_CHECKBOX, self.__on_check_max_volume)
         main.Add(self.__mcbMaxVolumeMover, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_max_volume_mover():
+            self.__mcbMaxVolumeMover.SetValue(True)
 
         self.__mcbMinVolumeMover = wx.CheckBox(panel, wx.ID_ANY, label = "Min Volume")
         self.__mcbMinVolumeMover.Bind(wx.EVT_CHECKBOX, self.__on_check_min_volume)
         main.Add(self.__mcbMinVolumeMover, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_min_volume_mover():
+            self.__mcbMinVolumeMover.SetValue(True)
 
         panel.SetSizer(main)
         return panel
@@ -2807,12 +3268,64 @@ class SearchStockPanel(BasePanel):
 
 
 #region - Percentage Above Below Movers Methods
+    def __get_panel_text_stock_data(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mstStockData = wx.StaticText(panel, label = Strings.STR_STOCK_DATA, style = wx.ALIGN_CENTRE_HORIZONTAL)
+        WxUtils.set_font_size_and_bold_and_roman(self.__mstStockData, 15)
+        main.Add(self.__mstStockData, 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panels_values_max_min_mover(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panel_value_max_mover(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_value_min_mover(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_value_max_mover(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "Max Value %", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxMaxValueMover = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxMaxValueMover.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxMaxValueMover, 0, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_value_max_mover():
+            self.__mtxMaxValueMover.SetValue(self.__mFilterSearchStockPanel.get_value_max_mover())
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_value_min_mover(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "Min Value %", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxMinValueMover = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxMinValueMover.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxMinValueMover, 0, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_value_min_mover():
+            self.__mtxMinValueMover.SetValue(self.__mFilterSearchStockPanel.get_value_min_mover())
+
+        panel.SetSizer(main)
+        return panel
+
     def __get_panels_one_percentage_movers(self):
         panel = wx.Panel(self)
         main = wx.BoxSizer(wx.HORIZONTAL)
+
         main.Add(self.__get_panel_one_percentage_above_movers(panel), 1, wx.EXPAND)
         main.AddSpacer(25)
         main.Add(self.__get_panel_one_percentage_below_movers(panel), 1, wx.EXPAND)
+
         panel.SetSizer(main)
         return panel
 
@@ -2822,14 +3335,20 @@ class SearchStockPanel(BasePanel):
         self.__mcbMoverAboveZero = wx.CheckBox(panel, wx.ID_ANY, label = "> 0% Movers")
         self.__mcbMoverAboveZero.Bind(wx.EVT_CHECKBOX, self.__on_check_above_zero)
         main.Add(self.__mcbMoverAboveZero, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_above_zero():
+            self.__mcbMoverAboveZero.SetValue(True)
 
         self.__mcbMoverAboveFifty = wx.CheckBox(panel, wx.ID_ANY, label = "> 50% Movers")
         self.__mcbMoverAboveFifty.Bind(wx.EVT_CHECKBOX, self.__on_check_above_fifty)
         main.Add(self.__mcbMoverAboveFifty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_above_fifty():
+            self.__mcbMoverAboveFifty.SetValue(True)
 
         self.__mcbMoverAboveHundred = wx.CheckBox(panel, wx.ID_ANY, label = ">100% Movers")
         self.__mcbMoverAboveHundred.Bind(wx.EVT_CHECKBOX, self.__on_check_above_hundred)
         main.Add(self.__mcbMoverAboveHundred, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_above_hundred():
+            self.__mcbMoverAboveHundred.SetValue(True)
 
         panel.SetSizer(main)
         return panel
@@ -2840,43 +3359,59 @@ class SearchStockPanel(BasePanel):
         self.__mcbMoverBelowZero = wx.CheckBox(panel, wx.ID_ANY, label = "< 0% Movers")
         self.__mcbMoverBelowZero.Bind(wx.EVT_CHECKBOX, self.__on_check_below_zero)
         main.Add(self.__mcbMoverBelowZero, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_below_zero():
+            self.__mcbMoverBelowZero.SetValue(True)
 
         self.__mcbMoverBelowFifty = wx.CheckBox(panel, wx.ID_ANY, label = "< -50% Movers")
         self.__mcbMoverBelowFifty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_fifty)
         main.Add(self.__mcbMoverBelowFifty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_below_fifty():
+            self.__mcbMoverBelowFifty.SetValue(True)
 
         panel.SetSizer(main)
         return panel
 #endregion
 
-#region - Percentage Above Below Movers Methods
+#region - Specific Percentage Above Below Movers Methods
     def __get_panels_two_percentage_movers(self):
         panel = wx.Panel(self)
         main = wx.BoxSizer(wx.HORIZONTAL)
+
         main.Add(self.__get_panel_two_percentage_above_movers(panel), 1, wx.EXPAND)
         main.AddSpacer(25)
         main.Add(self.__get_panel_two_percentage_below_movers(panel), 1, wx.EXPAND)
+
         panel.SetSizer(main)
         return panel
 
     def __get_panel_two_percentage_above_movers(self, parent):
         panel = wx.Panel(parent)
         main = wx.BoxSizer(wx.HORIZONTAL)
+
         self.__mcbMoverAboveZeroToTen = wx.CheckBox(panel, wx.ID_ANY, label = "+0% - 10%")
         self.__mcbMoverAboveZeroToTen.Bind(wx.EVT_CHECKBOX, self.__on_check_above_zero_to_ten)
         main.Add(self.__mcbMoverAboveZeroToTen, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_above_zero_to_ten():
+            self.__mcbMoverAboveZeroToTen.SetValue(True)
 
         self.__mcbMoverAboveTenToTwenty = wx.CheckBox(panel, wx.ID_ANY, label = "+10% - 20%")
         self.__mcbMoverAboveTenToTwenty.Bind(wx.EVT_CHECKBOX, self.__on_check_above_ten_to_twenty)
         main.Add(self.__mcbMoverAboveTenToTwenty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_above_ten_to_twenty():
+            self.__mcbMoverAboveTenToTwenty.SetValue(True)
 
         self.__mcbMoverAboveTwentyThirty = wx.CheckBox(panel, wx.ID_ANY, label = "+20% - 30%")
         self.__mcbMoverAboveTwentyThirty.Bind(wx.EVT_CHECKBOX, self.__on_check_above_twenty_to_thirty)
         main.Add(self.__mcbMoverAboveTwentyThirty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_above_twenty_to_thirty():
+            self.__mcbMoverAboveTwentyThirty.SetValue(True)
 
         self.__mcbMoverAboveThirtyFourty = wx.CheckBox(panel, wx.ID_ANY, label = "+30% - 40%")
-        self.__mcbMoverAboveThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_click_above_thirty_to_fourty)
+        self.__mcbMoverAboveThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_check_above_thirty_to_fourty)
         main.Add(self.__mcbMoverAboveThirtyFourty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_above_thirty_to_fourty():
+            self.__mcbMoverAboveThirtyFourty.SetValue(True)
+
         panel.SetSizer(main)
         return panel
 
@@ -2886,18 +3421,209 @@ class SearchStockPanel(BasePanel):
         self.__mcbMoverBelowZeroToTen = wx.CheckBox(panel, wx.ID_ANY, label = "0% - -10%")
         self.__mcbMoverBelowZeroToTen.Bind(wx.EVT_CHECKBOX, self.__on_check_below_zero_to_ten)
         main.Add(self.__mcbMoverBelowZeroToTen, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_below_zero_to_ten():
+            self.__mcbMoverBelowZeroToTen.SetValue(True)
 
         self.__mcbMoverBelowTenToTwenty = wx.CheckBox(panel, wx.ID_ANY, label = "-10% - -20%")
         self.__mcbMoverBelowTenToTwenty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_ten_to_twenty)
         main.Add(self.__mcbMoverBelowTenToTwenty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_below_ten_to_twenty():
+            self.__mcbMoverBelowTenToTwenty.SetValue(True)
 
         self.__mcbMoverBelowTwentyThirty = wx.CheckBox(panel, wx.ID_ANY, label = "-20% - -30%")
         self.__mcbMoverBelowTwentyThirty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_twenty_to_thirty)
         main.Add(self.__mcbMoverBelowTwentyThirty, 1, wx.EXPAND)
-        
+        if self.__mFilterSearchStockPanel.get_mover_below_twenty_to_thirty():
+            self.__mcbMoverBelowTwentyThirty.SetValue(True)
+
         self.__mcbMoverBelowThirtyFourty = wx.CheckBox(panel, wx.ID_ANY, label = "-30% - -40%")
         self.__mcbMoverBelowThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_thirty_to_fourty)
         main.Add(self.__mcbMoverBelowThirtyFourty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_below_thirty_to_fourty():
+            self.__mcbMoverBelowThirtyFourty.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+#endregion
+
+#region - Percentage Above Below Movers Methods
+    def __get_panel_text_fifty_weeks_data(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mstFiftyWeeksData = wx.StaticText(panel, label = Strings.STR_FIFTY_WEEKS_STOCK_DATA, style = wx.ALIGN_CENTRE_HORIZONTAL)
+        WxUtils.set_font_size_and_bold_and_roman(self.__mstFiftyWeeksData, 15)
+        main.Add(self.__mstFiftyWeeksData, 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panels_fifty_weeks_values_max_min_mover(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panel_fifty_weeks_value_max_mover(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_fifty_weeks_value_min_mover(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_fifty_weeks_value_max_mover(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "52-Week Max Value %", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxFiftyMaxValueMover = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxFiftyMaxValueMover.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxFiftyMaxValueMover, 0, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_fifty_value_max_mover():
+            self.__mtxFiftyMaxValueMover.SetValue(self.__mFilterSearchStockPanel.get_fifty_value_max_mover())
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_fifty_weeks_value_min_mover(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "52-Week Min Value %", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxFiftyMinValueMover = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxFiftyMinValueMover.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxFiftyMinValueMover, 0, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_fifty_value_min_mover():
+            self.__mtxFiftyMinValueMover.SetValue(self.__mFilterSearchStockPanel.get_fifty_value_min_mover())
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panels_two_fifty_weeks_percentage_movers(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panel_two_fifty_weeks_percentage_above_movers(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_two_fifty_weeks_percentage_below_movers(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_two_fifty_weeks_percentage_above_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mcbMoverFiftyWeeksAboveZero = wx.CheckBox(panel, wx.ID_ANY, label = "> 0% Movers")
+        self.__mcbMoverFiftyWeeksAboveZero.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_zero)
+        main.Add(self.__mcbMoverFiftyWeeksAboveZero, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_above_zero():
+            self.__mcbMoverFiftyWeeksAboveZero.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksAboveFifty = wx.CheckBox(panel, wx.ID_ANY, label = "> 50% Movers")
+        self.__mcbMoverFiftyWeeksAboveFifty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_fifty)
+        main.Add(self.__mcbMoverFiftyWeeksAboveFifty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_above_fifty():
+            self.__mcbMoverFiftyWeeksAboveFifty.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksAboveHundred = wx.CheckBox(panel, wx.ID_ANY, label = ">100% Movers")
+        self.__mcbMoverFiftyWeeksAboveHundred.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_hundred)
+        main.Add(self.__mcbMoverFiftyWeeksAboveHundred, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_above_hundred():
+            self.__mcbMoverFiftyWeeksAboveHundred.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_two_fifty_weeks_percentage_below_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mcbMoverFiftyWeeksBelowZero = wx.CheckBox(panel, wx.ID_ANY, label = "< 0% Movers")
+        self.__mcbMoverFiftyWeeksBelowZero.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_zero)
+        main.Add(self.__mcbMoverFiftyWeeksBelowZero, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_below_zero():
+            self.__mcbMoverFiftyWeeksBelowZero.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksBelowFifty = wx.CheckBox(panel, wx.ID_ANY, label = "< -50% Movers")
+        self.__mcbMoverFiftyWeeksBelowFifty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_fifty)
+        main.Add(self.__mcbMoverFiftyWeeksBelowFifty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_below_fifty():
+            self.__mcbMoverFiftyWeeksBelowFifty.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+#endregion
+
+#region - Specific Percentage Above Below Movers Fifty Weeks Methods
+    def __get_panels_three_percentage_fifty_weeks_movers(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panels_three_percentage_fifty_weeks_above_movers(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panels_three_percentage_fifty_weeks_below_movers(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panels_three_percentage_fifty_weeks_above_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mcbMoverFiftyWeeksAboveZeroToTen = wx.CheckBox(panel, wx.ID_ANY, label = "+0% - 10%")
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_zero_to_ten)
+        main.Add(self.__mcbMoverFiftyWeeksAboveZeroToTen, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_above_zero_to_ten():
+            self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty = wx.CheckBox(panel, wx.ID_ANY, label = "+10% - 20%")
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_ten_to_twenty)
+        main.Add(self.__mcbMoverFiftyWeeksAboveTenToTwenty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_above_ten_to_twenty():
+            self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty = wx.CheckBox(panel, wx.ID_ANY, label = "+20% - 30%")
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_twenty_to_thirty)
+        main.Add(self.__mcbMoverFiftyWeeksAboveTwentyThirty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_above_twenty_to_thirty():
+            self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty = wx.CheckBox(panel, wx.ID_ANY, label = "+30% - 40%")
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_thirty_to_fourty)
+        main.Add(self.__mcbMoverFiftyWeeksAboveThirtyFourty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_above_thirty_to_fourty():
+            self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panels_three_percentage_fifty_weeks_below_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mcbMoverFiftyWeeksBelowZeroToTen = wx.CheckBox(panel, wx.ID_ANY, label = "0% - -10%")
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_zero_to_ten)
+        main.Add(self.__mcbMoverFiftyWeeksBelowZeroToTen, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_below_zero_to_ten():
+            self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty = wx.CheckBox(panel, wx.ID_ANY, label = "-10% - -20%")
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_ten_to_twenty)
+        main.Add(self.__mcbMoverFiftyWeeksBelowTenToTwenty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_below_ten_to_twenty():
+            self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty = wx.CheckBox(panel, wx.ID_ANY, label = "-20% - -30%")
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_twenty_to_thirty)
+        main.Add(self.__mcbMoverFiftyWeeksBelowTwentyThirty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_below_twenty_to_thirty():
+            self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty = wx.CheckBox(panel, wx.ID_ANY, label = "-30% - -40%")
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_thirty_to_fourty)
+        main.Add(self.__mcbMoverFiftyWeeksBelowThirtyFourty, 1, wx.EXPAND)
+        if self.__mFilterSearchStockPanel.get_mover_fifty_weeks_below_thirty_to_fourty():
+            self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(True)
+
         panel.SetSizer(main)
         return panel
 #endregion
@@ -2906,8 +3632,10 @@ class SearchStockPanel(BasePanel):
     def __get_panel_buttons(self):
         panel = wx.Panel(self)
         main = wx.BoxSizer(wx.HORIZONTAL)
+
         searchButton = super()._get_icon_button(panel, wx.Bitmap(Icons.ICON_SEARCH), self.__on_click_search)
         main.Add(searchButton, 1, wx.EXPAND)
+
         panel.SetSizer(main)
         return panel
 #endregion
@@ -2929,6 +3657,14 @@ class SearchStockPanel(BasePanel):
                     self.__mFilterSearchStockPanel.set_min_volume(self.__mtxMinVolume.GetValue())
                 case self.__mtxMaxVolume:
                     self.__mFilterSearchStockPanel.set_max_volume(self.__mtxMaxVolume.GetValue())
+                case self.__mtxMaxValueMover:
+                    self.__mFilterSearchStockPanel.set_value_max_mover(self.__mtxMaxValueMover.GetValue())
+                case self.__mtxMinValueMover:
+                    self.__mFilterSearchStockPanel.set_value_min_mover(self.__mtxMinValueMover.GetValue())
+                case self.__mtxFiftyMaxValueMover:
+                    self.__mFilterSearchStockPanel.set_fifty_value_max_mover(self.__mtxFiftyMaxValueMover.GetValue())
+                case self.__mtxFiftyMinValueMover:
+                    self.__mFilterSearchStockPanel.set_fifty_value_min_mover(self.__mtxFiftyMinValueMover.GetValue())
 
     def __on_check_max_mover(self, evt):
         self.__mFilterSearchStockPanel.set_max_price_mover(evt.IsChecked())
@@ -3073,7 +3809,7 @@ class SearchStockPanel(BasePanel):
         self.__mcbMoverBelowTwentyThirty.SetValue(False)
         self.__mcbMoverBelowThirtyFourty.SetValue(False)
 
-    def __on_click_above_thirty_to_fourty(self, evt):
+    def __on_check_above_thirty_to_fourty(self, evt):
         self.__mFilterSearchStockPanel.set_mover_above_thirty_to_fourty(evt.IsChecked())
         self.__mcbMoverAboveZero.SetValue(False)
         self.__mcbMoverAboveFifty.SetValue(False)
@@ -3147,344 +3883,6 @@ class SearchStockPanel(BasePanel):
         self.__mcbMoverBelowZeroToTen.SetValue(False)
         self.__mcbMoverBelowTenToTwenty.SetValue(False)
         self.__mcbMoverBelowTwentyThirty.SetValue(False)
-#endregion
-
-    def __send_data(self):
-        j = json.dumps(self.__mFilterSearchStockPanel.to_dict())
-        pub.sendMessage(LISTEN_FILTER_STOCK_PANEL, message = json.loads(j))
-        self.GetParent().Destroy()
-
-class SearchStockPanel(BasePanel):
-
-    __mMainSizer = None
-
-    __mtxMinPrice = None
-    __mtxMaxPrice = None
-    __mtxMinVolume = None
-    __mtxMaxVolume = None
-
-    __mcbMaxPriceMover = None
-    __mcbMinPriceMover = None
-    __mcbMaxVolumeMover = None
-    __mcbMinVolumeMover = None
-
-    __mcbMoverAboveZero = None
-    __mcbMoverAboveFifty = None
-    __mcbMoverAboveHundred = None
-    __mcbMoverBelowZero = None
-    __mcbMoverBelowFifty = None
-    __mcbMoverBelowHundred = None
-
-    __mcbMoverAboveZeroToTen = None
-    __mcbMoverAboveTenToTwenty = None
-    __mcbMoverAboveTwentyThirty = None
-    __mcbMoverAboveThirtyFourty = None
-
-    __mcbMoverBelowZeroToTen = None
-    __mcbMoverBelowTenToTwenty = None
-    __mcbMoverBelowTwentyThirty = None
-    __mcbMoverBelowThirtyFourty = None
-
-    __mFilterSearchStockPanel = FilterSearchStockPanel()
-
-    def __init__(self, parent, size, filterData):
-        super().__init__(parent, size)
-        self.__init_layout()
-        self.init_filter_search_stock_panel()
-
-#region - Private Methods
-    def __init_layout(self):
-        self.__mMainSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.__mMainSizer.AddSpacer(25)
-        
-        vbs = wx.BoxSizer(wx.VERTICAL)
-        vbs.Add(self.__get_panels_min_max_price(), 0, wx.EXPAND)
-        vbs.AddSpacer(10)
-        vbs.Add(self.__get_panels_min_max_volume(), 0, wx.EXPAND)
-        vbs.AddSpacer(10)
-        vbs.Add(self.__get_panels_max_min_movers_volumes(), 0, wx.EXPAND)
-        vbs.AddSpacer(10)
-        vbs.Add(self.__get_panels_one_percentage_movers(), 0, wx.EXPAND)
-        vbs.AddSpacer(10)
-        vbs.Add(self.__get_panels_two_percentage_movers(), 0, wx.EXPAND)
-        vbs.AddSpacer(100)
-        vbs.Add(self.__get_panel_buttons(), 0, wx.EXPAND)
-
-        self.__mMainSizer.Add(vbs, 1, wx.ALL|wx.EXPAND)
-        self.__mMainSizer.AddSpacer(25)
-        self.SetSizer(self.__mMainSizer)
-
-    def init_filter_search_stock_panel(self):
-        self.__mFilterSearchStockPanel.set_min_price(False)
-        self.__mFilterSearchStockPanel.set_max_price(False)
-        self.__mFilterSearchStockPanel.set_min_volume(False)
-        self.__mFilterSearchStockPanel.set_max_volume(False)
-        self.__mFilterSearchStockPanel.set_max_price_mover(False)
-        self.__mFilterSearchStockPanel.set_min_price_mover(False)
-        self.__mFilterSearchStockPanel.set_max_volume_mover(False)
-        self.__mFilterSearchStockPanel.set_min_volume_mover(False)
-        self.__mFilterSearchStockPanel.set_mover_above_zero(False)
-        self.__mFilterSearchStockPanel.set_mover_above_fifty(False)
-        self.__mFilterSearchStockPanel.set_mover_above_hundred(False)
-        self.__mFilterSearchStockPanel.set_mover_below_zero(False)
-        self.__mFilterSearchStockPanel.set_mover_above_zero_to_ten(False)
-        self.__mFilterSearchStockPanel.set_mover_above_ten_to_twenty(False)
-        self.__mFilterSearchStockPanel.set_mover_above_twenty_to_thirty(False)
-        self.__mFilterSearchStockPanel.set_mover_above_thirty_to_fourty(False)
-        self.__mFilterSearchStockPanel.set_mover_below_zero_to_ten(False)
-        self.__mFilterSearchStockPanel.set_mover_below_ten_to_twenty(False)
-        self.__mFilterSearchStockPanel.set_mover_below_twenty_to_thirty(False)
-        self.__mFilterSearchStockPanel.set_mover_below_thirty_to_fourty(False)
-
-#region - Min Max Price Methods
-    def __get_panels_min_max_price(self):
-        panel = wx.Panel(self)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        main.Add(self.__get_panel_min_price(panel), 1, wx.EXPAND)
-        main.AddSpacer(25)
-        main.Add(self.__get_panel_max_price(panel), 1, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-
-    def __get_panel_min_price(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.VERTICAL)
-        main.Add(wx.StaticText(panel, label = "Min Price", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
-        self.__mtxMinPrice = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
-        self.__mtxMinPrice.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
-        main.Add(self.__mtxMinPrice, 0, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-
-    def __get_panel_max_price(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.VERTICAL)
-        main.Add(wx.StaticText(panel, label = "Max Price", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
-        self.__mtxMaxPrice = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
-        self.__mtxMaxPrice.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
-        main.Add(self.__mtxMaxPrice, 0, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-#endregion
-
-#region - Min Max Volume Methods
-    def __get_panels_min_max_volume(self):
-        panel = wx.Panel(self)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        main.Add(self.__get_panel_min_volume(panel), 1, wx.EXPAND)
-        main.AddSpacer(25)
-        main.Add(self.__get_panel_max_volume(panel), 1, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-
-    def __get_panel_min_volume(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.VERTICAL)
-        main.Add(wx.StaticText(panel, label = "Min Volume", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
-        self.__mtxMinVolume = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
-        self.__mtxMinVolume.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
-        main.Add(self.__mtxMinVolume, 0, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-
-    def __get_panel_max_volume(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.VERTICAL)
-        main.Add(wx.StaticText(panel, label = "Max Volume", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
-        self.__mtxMaxVolume = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
-        self.__mtxMaxVolume.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
-        main.Add(self.__mtxMaxVolume, 0, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-#endregion
-
-#region - Min Max Movers / Volumes Methods
-    def __get_panels_max_min_movers_volumes(self):
-        panel = wx.Panel(self)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        main.Add(self.__get_panel_min_max_movers(panel), 1, wx.EXPAND)
-        main.AddSpacer(25)
-        main.Add(self.__get_panel_min_max_volumes(panel), 1, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-
-    def __get_panel_min_max_movers(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        self.__mcbMaxPriceMover = wx.CheckBox(panel, wx.ID_ANY, label = "Max Mover")
-        self.__mcbMaxPriceMover.Bind(wx.EVT_CHECKBOX, self.__on_check_max_mover)
-        main.Add(self.__mcbMaxPriceMover, 1, wx.EXPAND)
-
-        self.__mcbMinPriceMover = wx.CheckBox(panel, wx.ID_ANY, label = "Min Mover")
-        self.__mcbMinPriceMover.Bind(wx.EVT_CHECKBOX, self.__on_check_min_mover)
-        main.Add(self.__mcbMinPriceMover, 1, wx.EXPAND)
-
-        panel.SetSizer(main)
-        return panel
-
-    def __get_panel_min_max_volumes(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        self.__mcbMaxVolumeMover = wx.CheckBox(panel, wx.ID_ANY, label = "Max Volume")
-        self.__mcbMaxVolumeMover.Bind(wx.EVT_CHECKBOX, self.__on_check_max_volume)
-        main.Add(self.__mcbMaxVolumeMover, 1, wx.EXPAND)
-
-        self.__mcbMinVolumeMover = wx.CheckBox(panel, wx.ID_ANY, label = "Min Volume")
-        self.__mcbMinVolumeMover.Bind(wx.EVT_CHECKBOX, self.__on_check_min_volume)
-        main.Add(self.__mcbMinVolumeMover, 1, wx.EXPAND)
-
-        panel.SetSizer(main)
-        return panel
-#endregion
-
-
-#region - Percentage Above Below Movers Methods
-    def __get_panels_one_percentage_movers(self):
-        panel = wx.Panel(self)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        main.Add(self.__get_panel_one_percentage_above_movers(panel), 1, wx.EXPAND)
-        main.AddSpacer(25)
-        main.Add(self.__get_panel_one_percentage_below_movers(panel), 1, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-
-    def __get_panel_one_percentage_above_movers(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        self.__mcbMoverAboveZero = wx.CheckBox(panel, wx.ID_ANY, label = "> 0% Movers")
-        self.__mcbMoverAboveZero.Bind(wx.EVT_CHECKBOX, self.__on_check_above_zero)
-        main.Add(self.__mcbMoverAboveZero, 1, wx.EXPAND)
-
-        self.__mcbMoverAboveFifty = wx.CheckBox(panel, wx.ID_ANY, label = "> 50% Movers")
-        self.__mcbMoverAboveFifty.Bind(wx.EVT_CHECKBOX, self.__on_check_above_fifty)
-        main.Add(self.__mcbMoverAboveFifty, 1, wx.EXPAND)
-
-        self.__mcbMoverAboveHundred = wx.CheckBox(panel, wx.ID_ANY, label = ">100% Movers")
-        self.__mcbMoverAboveHundred.Bind(wx.EVT_CHECKBOX, self.__on_check_above_hundred)
-        main.Add(self.__mcbMoverAboveHundred, 1, wx.EXPAND)
-
-        panel.SetSizer(main)
-        return panel
-
-    def __get_panel_one_percentage_below_movers(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        self.__mcbMoverBelowZero = wx.CheckBox(panel, wx.ID_ANY, label = "< 0% Movers")
-        self.__mcbMoverBelowZero.Bind(wx.EVT_CHECKBOX, self.__on_check_below_zero)
-        main.Add(self.__mcbMoverBelowZero, 1, wx.EXPAND)
-
-        self.__mcbMoverBelowFifty = wx.CheckBox(panel, wx.ID_ANY, label = "< -50% Movers")
-        self.__mcbMoverBelowFifty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_fifty)
-        main.Add(self.__mcbMoverBelowFifty, 1, wx.EXPAND)
-
-        panel.SetSizer(main)
-        return panel
-#endregion
-
-#region - Percentage Above Below Movers Methods
-    def __get_panels_two_percentage_movers(self):
-        panel = wx.Panel(self)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        main.Add(self.__get_panel_two_percentage_above_movers(panel), 1, wx.EXPAND)
-        main.AddSpacer(25)
-        main.Add(self.__get_panel_two_percentage_below_movers(panel), 1, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-
-    def __get_panel_two_percentage_above_movers(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        self.__mcbMoverAboveZeroToTen = wx.CheckBox(panel, wx.ID_ANY, label = "+0% - 10%")
-        self.__mcbMoverAboveZeroToTen.Bind(wx.EVT_CHECKBOX, self.__on_check_above_zero_to_ten)
-        main.Add(self.__mcbMoverAboveZeroToTen, 1, wx.EXPAND)
-
-        self.__mcbMoverAboveTenToTwenty = wx.CheckBox(panel, wx.ID_ANY, label = "+10% - 20%")
-        self.__mcbMoverAboveTenToTwenty.Bind(wx.EVT_CHECKBOX, self.__on_check_above_ten_to_twenty)
-        main.Add(self.__mcbMoverAboveTenToTwenty, 1, wx.EXPAND)
-
-        self.__mcbMoverAboveTwentyThirty = wx.CheckBox(panel, wx.ID_ANY, label = "+20% - 30%")
-        self.__mcbMoverAboveTwentyThirty.Bind(wx.EVT_CHECKBOX, self.__on_check_above_twenty_to_thirty)
-        main.Add(self.__mcbMoverAboveTwentyThirty, 1, wx.EXPAND)
-
-        self.__mcbMoverAboveThirtyFourty = wx.CheckBox(panel, wx.ID_ANY, label = "+30% - 40%")
-        self.__mcbMoverAboveThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_click_above_thirty_to_fourty)
-        main.Add(self.__mcbMoverAboveThirtyFourty, 1, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-
-    def __get_panel_two_percentage_below_movers(self, parent):
-        panel = wx.Panel(parent)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        self.__mcbMoverBelowZeroToTen = wx.CheckBox(panel, wx.ID_ANY, label = "0% - -10%")
-        self.__mcbMoverBelowZeroToTen.Bind(wx.EVT_CHECKBOX, self.__on_check_below_zero_to_ten)
-        main.Add(self.__mcbMoverBelowZeroToTen, 1, wx.EXPAND)
-
-        self.__mcbMoverBelowTenToTwenty = wx.CheckBox(panel, wx.ID_ANY, label = "-10% - -20%")
-        self.__mcbMoverBelowTenToTwenty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_ten_to_twenty)
-        main.Add(self.__mcbMoverBelowTenToTwenty, 1, wx.EXPAND)
-
-        self.__mcbMoverBelowTwentyThirty = wx.CheckBox(panel, wx.ID_ANY, label = "-20% - -30%")
-        self.__mcbMoverBelowTwentyThirty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_twenty_to_thirty)
-        main.Add(self.__mcbMoverBelowTwentyThirty, 1, wx.EXPAND)
-
-        self.__mcbMoverBelowThirtyFourty = wx.CheckBox(panel, wx.ID_ANY, label = "-30% - -40%")
-        self.__mcbMoverBelowThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_thirty_to_fourty)
-        main.Add(self.__mcbMoverBelowThirtyFourty, 1, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-#endregion
-
-#region - Get Panel Filter
-    def __get_panel_buttons(self):
-        panel = wx.Panel(self)
-        main = wx.BoxSizer(wx.HORIZONTAL)
-        searchButton = super()._get_icon_button(panel, wx.Bitmap(Icons.ICON_SEARCH), self.__on_click_search)
-        main.Add(searchButton, 1, wx.EXPAND)
-        panel.SetSizer(main)
-        return panel
-#endregion
-
-#region - Event Handler Methods
-    def __on_click_search(self, evt):
-        self.__send_data()
-        self.GetParent().Destroy()
-        self.Layout()
-
-    def __on_change_text_check_is_int_value(self, evt):
-        if(KeyboardEventUtils.on_change_text_check_is_int_value(self, evt)):
-            match evt.GetEventObject():
-                case self.__mtxMinPrice:
-                    self.__mFilterSearchStockPanel.set_min_price(self.__mtxMinPrice.GetValue())
-                case self.__mtxMaxPrice:
-                    self.__mFilterSearchStockPanel.set_max_price(self.__mtxMaxPrice.GetValue())
-                case self.__mtxMinVolume:
-                    self.__mFilterSearchStockPanel.set_min_volume(self.__mtxMinVolume.GetValue())
-                case self.__mtxMaxVolume:
-                    self.__mFilterSearchStockPanel.set_max_volume(self.__mtxMaxVolume.GetValue())
-
-    def __on_check_max_mover(self, evt):
-        self.__mFilterSearchStockPanel.set_max_price_mover(evt.IsChecked())
-        self.__mcbMinPriceMover.SetValue(False)
-        self.__mcbMinVolumeMover.SetValue(False)
-        self.__mcbMaxVolumeMover.SetValue(False)
-
-    def __on_check_min_mover(self, evt):
-        self.__mFilterSearchStockPanel.set_min_price_mover(evt.IsChecked())
-        self.__mcbMaxPriceMover.SetValue(False)
-        self.__mcbMinVolumeMover.SetValue(False)
-        self.__mcbMaxVolumeMover.SetValue(False)
-
-    def __on_check_max_volume(self, evt):
-        self.__mFilterSearchStockPanel.set_max_volume_mover(evt.IsChecked())
-        self.__mcbMinVolumeMover.SetValue(False)
-        self.__mcbMaxPriceMover.SetValue(False)
-        self.__mcbMinPriceMover.SetValue(False)
-
-    def __on_check_min_volume(self, evt):
-        self.__mFilterSearchStockPanel.set_min_volume_mover(evt.IsChecked())
-        self.__mcbMaxVolumeMover.SetValue(False)
-        self.__mcbMaxPriceMover.SetValue(False)
-        self.__mcbMinPriceMover.SetValue(False)
 
     def __on_check_above_zero(self, evt):
         self.__mFilterSearchStockPanel.set_mover_above_zero(evt.IsChecked())
@@ -3501,184 +3899,201 @@ class SearchStockPanel(BasePanel):
         self.__mcbMoverBelowTwentyThirty.SetValue(False)
         self.__mcbMoverBelowThirtyFourty.SetValue(False)
 
-    def __on_check_above_fifty(self, evt):
-        self.__mFilterSearchStockPanel.set_mover_above_fifty(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveHundred.SetValue(False)
-        self.__mcbMoverBelowZero.SetValue(False)
-        self.__mcbMoverBelowFifty.SetValue(False)
-        self.__mcbMoverAboveZeroToTen.SetValue(False)
-        self.__mcbMoverAboveTenToTwenty.SetValue(False)
-        self.__mcbMoverAboveTwentyThirty.SetValue(False)
-        self.__mcbMoverAboveThirtyFourty.SetValue(False)
-        self.__mcbMoverBelowZeroToTen.SetValue(False)
-        self.__mcbMoverBelowTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowTwentyThirty.SetValue(False)
-        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+    def __on_check_fifty_weeks_above_zero(self, evt):
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_above_zero(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
 
-    def __on_check_above_hundred(self, evt):
-        self.__mFilterSearchStockPanel.set_mover_above_hundred(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveFifty.SetValue(False)
-        self.__mcbMoverBelowZero.SetValue(False)
-        self.__mcbMoverBelowFifty.SetValue(False)
-        self.__mcbMoverAboveZeroToTen.SetValue(False)
-        self.__mcbMoverAboveTenToTwenty.SetValue(False)
-        self.__mcbMoverAboveTwentyThirty.SetValue(False)
-        self.__mcbMoverAboveThirtyFourty.SetValue(False)
-        self.__mcbMoverBelowZeroToTen.SetValue(False)
-        self.__mcbMoverBelowTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowTwentyThirty.SetValue(False)
-        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+    def __on_check_fifty_weeks_above_fifty(self, evt):
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_above_fifty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
 
-    def __on_check_below_zero(self, evt):
-        self.__mFilterSearchStockPanel.set_mover_below_zero(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveFifty.SetValue(False)
-        self.__mcbMoverAboveHundred.SetValue(False)
-        self.__mcbMoverBelowFifty.SetValue(False)
-        self.__mcbMoverAboveZeroToTen.SetValue(False)
-        self.__mcbMoverAboveTenToTwenty.SetValue(False)
-        self.__mcbMoverAboveTwentyThirty.SetValue(False)
-        self.__mcbMoverAboveThirtyFourty.SetValue(False)
-        self.__mcbMoverBelowZeroToTen.SetValue(False)
-        self.__mcbMoverBelowTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowTwentyThirty.SetValue(False)
-        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+    def __on_check_fifty_weeks_above_hundred(self, evt):
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_above_hundred(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
 
-    def __on_check_below_fifty(self, evt):
-        self.__mFilterSearchStockPanel.set_mover_below_fifty(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveFifty.SetValue(False)
-        self.__mcbMoverAboveHundred.SetValue(False)
-        self.__mcbMoverBelowZero.SetValue(False)
-        self.__mcbMoverAboveZeroToTen.SetValue(False)
-        self.__mcbMoverAboveTenToTwenty.SetValue(False)
-        self.__mcbMoverAboveTwentyThirty.SetValue(False)
-        self.__mcbMoverAboveThirtyFourty.SetValue(False)
-        self.__mcbMoverBelowZeroToTen.SetValue(False)
-        self.__mcbMoverBelowTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowTwentyThirty.SetValue(False)
-        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+    def __on_check_fifty_weeks_below_zero(self, evt):
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_below_zero(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
 
-    def __on_check_above_zero_to_ten(self, evt):
-        self.__mFilterSearchStockPanel.set_mover_above_zero_to_ten(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveFifty.SetValue(False)
-        self.__mcbMoverAboveHundred.SetValue(False)
-        self.__mcbMoverBelowZero.SetValue(False)
-        self.__mcbMoverBelowFifty.SetValue(False)
-        self.__mcbMoverAboveTenToTwenty.SetValue(False)
-        self.__mcbMoverAboveTwentyThirty.SetValue(False)
-        self.__mcbMoverAboveThirtyFourty.SetValue(False)
-        self.__mcbMoverBelowZeroToTen.SetValue(False)
-        self.__mcbMoverBelowTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowTwentyThirty.SetValue(False)
-        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+    def __on_check_fifty_weeks_below_fifty(self, evt):
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_below_fifty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
 
-    def __on_check_above_ten_to_twenty(self, evt):
-        self.__mFilterSearchStockPanel.set_mover_above_ten_to_twenty(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveFifty.SetValue(False)
-        self.__mcbMoverAboveHundred.SetValue(False)
-        self.__mcbMoverBelowZero.SetValue(False)
-        self.__mcbMoverBelowFifty.SetValue(False)
-        self.__mcbMoverAboveZeroToTen.SetValue(False)
-        self.__mcbMoverAboveTwentyThirty.SetValue(False)
-        self.__mcbMoverAboveThirtyFourty.SetValue(False)
-        self.__mcbMoverBelowZeroToTen.SetValue(False)
-        self.__mcbMoverBelowTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowTwentyThirty.SetValue(False)
-        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+    def __on_check_fifty_weeks_above_zero_to_ten():      
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_above_zero_to_ten(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
 
-    def __on_check_above_twenty_to_thirty(self, evt):
-        self.__mFilterSearchStockPanel.set_mover_above_twenty_to_thirty(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveFifty.SetValue(False)
-        self.__mcbMoverAboveHundred.SetValue(False)
-        self.__mcbMoverBelowZero.SetValue(False)
-        self.__mcbMoverBelowFifty.SetValue(False)
-        self.__mcbMoverAboveZeroToTen.SetValue(False)
-        self.__mcbMoverAboveTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowZeroToTen.SetValue(False)
-        self.__mcbMoverBelowTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowTwentyThirty.SetValue(False)
-        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+    def __on_check_fifty_weeks_above_ten_to_twenty():      
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_above_ten_to_twenty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
 
-    def __on_click_above_thirty_to_fourty(self, evt):
-        self.__mFilterSearchStockPanel.set_mover_above_thirty_to_fourty(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveFifty.SetValue(False)
-        self.__mcbMoverAboveHundred.SetValue(False)
-        self.__mcbMoverBelowZero.SetValue(False)
-        self.__mcbMoverBelowFifty.SetValue(False)
-        self.__mcbMoverAboveZeroToTen.SetValue(False)
-        self.__mcbMoverAboveTenToTwenty.SetValue(False)
-        self.__mcbMoverAboveTwentyThirty.SetValue(False)
-        self.__mcbMoverBelowZeroToTen.SetValue(False)
-        self.__mcbMoverBelowTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowTwentyThirty.SetValue(False)
-        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+    def __on_check_fifty_weeks_above_twenty_to_thirty():   
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_above_twenty_thirty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
 
-    def __on_check_below_zero_to_ten(self, evt):
-        self.__mFilterSearchStockPanel.set_mover_below_zero_to_ten(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveFifty.SetValue(False)
-        self.__mcbMoverAboveHundred.SetValue(False)
-        self.__mcbMoverBelowZero.SetValue(False)
-        self.__mcbMoverBelowFifty.SetValue(False)
-        self.__mcbMoverAboveZeroToTen.SetValue(False)
-        self.__mcbMoverAboveTenToTwenty.SetValue(False)
-        self.__mcbMoverAboveTwentyThirty.SetValue(False)
-        self.__mcbMoverAboveThirtyFourty.SetValue(False)
-        self.__mcbMoverBelowTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowTwentyThirty.SetValue(False)
-        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+    def __on_check_fifty_weeks_above_thirty_to_fourty():   
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_above_thirty_fourty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
 
-    def __on_check_below_ten_to_twenty(self, evt):
-        self.__mFilterSearchStockPanel.set_mover_below_ten_to_twenty(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveFifty.SetValue(False)
-        self.__mcbMoverAboveHundred.SetValue(False)
-        self.__mcbMoverBelowZero.SetValue(False)
-        self.__mcbMoverBelowFifty.SetValue(False)
-        self.__mcbMoverAboveZeroToTen.SetValue(False)
-        self.__mcbMoverAboveTenToTwenty.SetValue(False)
-        self.__mcbMoverAboveTwentyThirty.SetValue(False)
-        self.__mcbMoverAboveThirtyFourty.SetValue(False)
-        self.__mcbMoverBelowZeroToTen.SetValue(False)
-        self.__mcbMoverBelowTwentyThirty.SetValue(False)
-        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+    def __on_check_fifty_weeks_below_zero_to_ten():       
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_below_zero_to_ten(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
 
-    def __on_check_below_twenty_to_thirty(self, evt):
+    def __on_check_fifty_weeks_below_ten_to_twenty():     
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_below_ten_to_twenty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_below_twenty_to_thirty():   
         self.__mFilterSearchStockPanel.set_mover_below_twenty_to_thirty(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveFifty.SetValue(False)
-        self.__mcbMoverAboveHundred.SetValue(False)
-        self.__mcbMoverBelowZero.SetValue(False)
-        self.__mcbMoverBelowFifty.SetValue(False)
-        self.__mcbMoverAboveZeroToTen.SetValue(False)
-        self.__mcbMoverAboveTenToTwenty.SetValue(False)
-        self.__mcbMoverAboveTwentyThirty.SetValue(False)
-        self.__mcbMoverAboveThirtyFourty.SetValue(False)
-        self.__mcbMoverBelowZeroToTen.SetValue(False)
-        self.__mcbMoverBelowTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
 
-    def __on_check_below_thirty_to_fourty(self, evt):
-        self.__mFilterSearchStockPanel.set_mover_below_thirty_to_fourty(evt.IsChecked())
-        self.__mcbMoverAboveZero.SetValue(False)
-        self.__mcbMoverAboveFifty.SetValue(False)
-        self.__mcbMoverAboveHundred.SetValue(False)
-        self.__mcbMoverBelowZero.SetValue(False)
-        self.__mcbMoverBelowFifty.SetValue(False)
-        self.__mcbMoverAboveZeroToTen.SetValue(False)
-        self.__mcbMoverAboveTenToTwenty.SetValue(False)
-        self.__mcbMoverAboveTwentyThirty.SetValue(False)
-        self.__mcbMoverAboveThirtyFourty.SetValue(False)
-        self.__mcbMoverBelowZeroToTen.SetValue(False)
-        self.__mcbMoverBelowTenToTwenty.SetValue(False)
-        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+    def __on_check_fifty_weeks_below_thirty_to_fourty():   
+        self.__mFilterSearchStockPanel.set_mover_fifty_weeks_below_thirty_fourty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+
 #endregion
 
     def __send_data(self):
@@ -4800,7 +5215,7 @@ class ViewStocksFrame(wx.Frame):
 class SearchStockFrame(wx.Frame):
 
     def __init__(self, title, filterData):
-        wx.Frame.__init__(self, None, wx.ID_ANY, title, size=Constants.DISPLAY_SIZE_MAIN_FRAME)
+        wx.Frame.__init__(self, None, wx.ID_ANY, title, size=Constants.DISPLAY_SIZE_SEARCH_STOCKS_FRAME)
         wx.Frame.CenterOnScreen(self)
         self.__init_main_panel(filterData)
 
