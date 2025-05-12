@@ -251,6 +251,7 @@ class APIConstants(object):
     FIELD_FIRST_TRADE_DATE_MILLISECONDS = "firstTradeDateMilliseconds"
     FIELD_FINANCIAL_CURRENCY = "financialCurrency"
     FIELD_PRE_MARKET_PRICE = "preMarketPrice"
+    FIELD_PRE_MARKET_CHANGE_PERCENT = "preMarketChangePercent"
 #endregion
 
 #region - URL_API_YAHOO_FINANCE_GET_CHART - Json Fields
@@ -710,6 +711,7 @@ class Stock(BaseAsset):
     __mAverageAnalystRating = None
     __mMarketChangePercent = None
     __mPreMarketPrice = None
+    __mPreMarketChangePerc = None
     __mPostMarketChangePercent = None
     __mPostMarketTime = None
     __mPostMarketPrice = None
@@ -870,6 +872,9 @@ class Stock(BaseAsset):
 
     def get_pre_market_price(self):
         return self.__mPreMarketPrice
+
+    def get_pre_market_change_percentage(self):
+        return self.__mPreMarketChangePerc
 
     def get_post_market_change_percent(self):
         return self.__mPostMarketChangePercent
@@ -1047,6 +1052,9 @@ class Stock(BaseAsset):
     def set_pre_market_price(self, price):
         self.__mPreMarketPrice = price
 
+    def set_pre_market_change_percent(self, perc):
+        self.__mPreMarketChangePerc = perc
+
     def set_post_market_change_percent(self, postMarketChangePercent):
         self.__mPostMarketChangePercent = postMarketChangePercent
 
@@ -1073,6 +1081,20 @@ class Stock(BaseAsset):
 
     def set_price_eps_current_year_ratio(self, priceEpsCurrentYearRatio):
         self.__mPriceEpsCurrentYearRatio = priceEpsCurrentYearRatio
+#endregion
+
+#region - Public Methods
+#region - Store Data Methods
+    @staticmethod
+    def store_data_list(l):
+        BaseClass.store_data_list(l, DataFilenames.FILENAME_STOCK_DATA)
+
+    def add_to_stored_data_list(self):
+        BaseClass.add_to_stored_data_list(self, DataFilenames.FILENAME_STOCK_DATA)
+
+    @staticmethod
+    def get_stored_data():
+        return BaseClass.get_stored_data(DataFilenames.FILENAME_STOCK_DATA)
 #endregion
 #endregion
 
@@ -1130,6 +1152,7 @@ class Stock(BaseAsset):
                 f"#- __mAverageAnalystRating: {self.__mAverageAnalystRating}\n"\
                 f"#- __mMarketChangePercent: {self.__mMarketChangePercent}\n"\
                 f"#- __mPreMarketPrice: {self.__mPreMarketPrice}\n"\
+                f"#- __mPreMarketChangePerc: {self.__mPreMarketChangePerc}\n"\
                 f"#- __mPostMarketChangePercent: {self.__mPostMarketChangePercent}\n"\
                 f"#- __mPostMarketTime: {self.__mPostMarketTime}\n"\
                 f"#- __mPostMarketPrice: {self.__mPostMarketPrice}\n"\
@@ -1140,6 +1163,8 @@ class Stock(BaseAsset):
                 f"#- __mEpsCurrentYear: {self.__mEpsCurrentYear}\n"\
                 f"#- __mPriceEpsCurrentYearRatio: {self.__mPriceEpsCurrentYearRatio}\n"\
                 "####################"
+    
+
 
 class FilterSearchStockPanel(object):
 
@@ -2206,6 +2231,9 @@ class DataSynchronization(object):
 
                 stock.set_exchange(exchange)
 
+                if APIConstants.FIELD_PRE_MARKET_CHANGE_PERCENT in j:
+                    stock.set_pre_market_change_percent(j[APIConstants.FIELD_PRE_MARKET_CHANGE_PERCENT])
+
                 if APIConstants.FIELD_PRE_MARKET_PRICE in j:
                     stock.set_pre_market_price(j[APIConstants.FIELD_PRE_MARKET_PRICE])
                 else:
@@ -2506,6 +2534,9 @@ class DataSynchronization(object):
                 else:
                     stock.set_pre_market_price(None)
 
+                if APIConstants.FIELD_PRE_MARKET_CHANGE_PERCENT in j:
+                    stock.set_pre_market_change_percent(j[APIConstants.FIELD_PRE_MARKET_CHANGE_PERCENT])
+
                 if APIConstants.FIELD_POST_MARKET_CHANGE_PERCENT in j:
                     stock.set_post_market_change_percent(j[APIConstants.FIELD_POST_MARKET_CHANGE_PERCENT])
 
@@ -2612,6 +2643,9 @@ class DataSynchronization(object):
                 if APIConstants.FIELD_BID_SIZE in j:
                     stock.set_bid_size(j[APIConstants.FIELD_BID_SIZE])
                     
+                if APIConstants.FIELD_PRE_MARKET_CHANGE_PERCENT in j:
+                    stock.set_pre_market_change_percent(j[APIConstants.FIELD_PRE_MARKET_CHANGE_PERCENT])
+
                 if APIConstants.FIELD_AVG_DAILY_VOLUME_TEN_DAYS in j:
                     stock.set_avg_volume_ten_days(j[APIConstants.FIELD_AVG_DAILY_VOLUME_TEN_DAYS])
 
@@ -4301,14 +4335,16 @@ class SearchStockPanel(BasePanel):
 
 class ViewStocksPanel(BasePanel):
 
-    __mbsMainBox: wx.BoxSizer = None
-    __mbsRightListBox: wx.BoxSizer = None
+    __mSearchStockFrame = None
+
     __mMainSplitter = None
 
     __mLeftPanel: wx.Panel = None
     __mRightPanel: wx.Panel = None
     __mDataPanel: wx.Panel = None
 
+    __mbsMainBox: wx.BoxSizer = None
+    __mbsRightListBox: wx.BoxSizer = None
     __mBoxSizerData = None
 
     __mtxSearchList: wx.TextCtrl = None
@@ -4321,8 +4357,10 @@ class ViewStocksPanel(BasePanel):
 
     __mGraphOneDayPlot = None
 
+    __mstMarketPercentage = None
     __mstPrice = None
     __mstPrePostMarketPrice = None
+    __mstPrePostMarketPercentage = None
     __mstMarketCap = None
     __mstDayMax = None
     __mstDayMin = None
@@ -4342,10 +4380,7 @@ class ViewStocksPanel(BasePanel):
     __mTimerUpdateList = None
     __mTimerUpdateLeftPanel = None
 
-    __mProgressDialog = None
-
     __mStockViewData = None
-    __mStocks = []
 
     __mGraphLastValue = None
     __mGraphLastColor = "b"
@@ -4800,7 +4835,7 @@ class ViewStocksPanel(BasePanel):
         
         if self.__mStockViewData.get_stock().get_pre_market_price() is not None:
             self.__mstPrePostMarketPrice = wx.StaticText(panel, label = Strings.STR_FIELD_PRE_MARKET + str(self.__mStockViewData.get_stock().get_pre_market_price()))
-            self.__mstPrePostMarketPercentage = wx.StaticText(panel, label = "     " + str(round(self.__mStockViewData.get_stock().get_pre_market_change_percentage(), 2)) + "%")
+            self.__mstPrePostMarketPercentage = wx.StaticText(panel, label = "\t\t" + str(round(self.__mStockViewData.get_stock().get_pre_market_change_percentage(), 2)) + "%")
             if self.__mStockViewData.get_stock().get_pre_market_change_percentage() is not None and self.__mStockViewData.get_stock().get_pre_market_change_percentage() > 0:
                 self.__mstPrePostMarketPercentage.SetForegroundColour(Colors.GREEN)
             else:
