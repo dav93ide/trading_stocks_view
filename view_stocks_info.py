@@ -37,7 +37,7 @@ class Colors():
     RED = (255, 0, 0)
     GREEN = (0, 255, 0)
 
-    COLOR_PLATFORM_BACKGROUND_GREY = (50, 50, 50)
+    COLOR_PLATFORM_BACKGROUND_GREY = (75, 75, 75)
     COLOR_USER_CAPITAL = (0, 153, 0)
 
 class Icons():
@@ -4488,6 +4488,7 @@ class ViewStocksPanel(BasePanel):
         self.__mLeftPanel = wx.lib.scrolledpanel.ScrolledPanel(self.__mMainSplitter, wx.ID_ANY)
         self.__mLeftPanel.Fit()
         self.__mLeftPanel.SetupScrolling()
+        self.__mLeftPanel.Layout()
 #endregion
 
 #region - Event Handler Methods
@@ -4673,7 +4674,8 @@ class ViewStocksPanel(BasePanel):
                         self.__mList.unbind_listener()
                         self.__mList.Select(i)
                         self.__mList.bind_listener()
-                        break 
+                        break
+            self.__mLeftPanel.Layout()
         
     def __update_left_panel_data(self, event):
         if self.__mStockViewData is not None:
@@ -4697,6 +4699,7 @@ class ViewStocksPanel(BasePanel):
             self.__mstVolume.SetLabel(str(self.__mStockViewData.get_stock().get_volume()))
             self.__mstAvgVolumeTenDays.SetLabel(str(self.__mStockViewData.get_stock().get_avg_volume_ten_days()))
             self.__mstAvgVolumeThreeMonths.SetLabel(str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_avg_volume_three_months(), 2)))
+            self.__mLeftPanel.Layout()
 
     def __on_destroy_graph_one_day_plot(self, event):
         self.__mGraphOneDayPlot = None
@@ -4811,9 +4814,11 @@ class ViewStocksPanel(BasePanel):
         if not self.__mThreadUpdateGraph.is_alive():
             self.__mThreadUpdateGraph.start()
 
+        self.__mLeftPanel.Layout()
+
     def __get_layout_nome_azienda(self):
         panel = wx.Panel(self.__mLeftPanel)
-        panel.SetBackgroundColour((33, 33, 33))
+        panel.SetBackgroundColour((75, 75, 75))
 
         vbs = wx.BoxSizer(wx.VERTICAL)
         st = wx.StaticText(panel, label = self.__mStockViewData.get_stock().get_company().get_short_name(), style = wx.ALIGN_LEFT)
