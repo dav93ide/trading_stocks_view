@@ -4444,7 +4444,6 @@ class ViewStocksPanel(BasePanel):
 
     def __init_right_panel(self):
         self.__mRightPanel = wx.Panel(self.__mMainSplitter, wx.ID_ANY)
-        self.__mRightPanel.SetBackgroundColour((66, 66, 66))
         
         main = wx.BoxSizer(wx.VERTICAL)
         
@@ -4818,7 +4817,6 @@ class ViewStocksPanel(BasePanel):
 
     def __get_layout_nome_azienda(self):
         panel = wx.Panel(self.__mLeftPanel)
-        panel.SetBackgroundColour((75, 75, 75))
 
         vbs = wx.BoxSizer(wx.VERTICAL)
         st = wx.StaticText(panel, label = self.__mStockViewData.get_stock().get_company().get_short_name(), style = wx.ALIGN_LEFT)
@@ -4868,7 +4866,7 @@ class ViewStocksPanel(BasePanel):
 
     def __get_layout_data_one(self):
         self.__mDataPanel = wx.Panel(self.__mLeftPanel)
-        self.__mDataPanel.SetBackgroundColour((66, 66, 66))
+        
         vbs = wx.BoxSizer(wx.VERTICAL)
         vbs.AddSpacer(10)
         self.__mGraphsSizer = wx.BoxSizer(wx.VERTICAL)
