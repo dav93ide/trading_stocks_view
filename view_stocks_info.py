@@ -2221,13 +2221,13 @@ class Networking(object):
 class DataSynchronization(object):
 
 #region - Public Methods
-    def sync_all_stocks_and_symbols(progressDialog):
+    def sync_all_stocks_and_symbols():
         stocks = []            
         try:
-            symbols = DataSynchronization.__sync_get_all_stocks_symbols(progressDialog)
+            symbols = DataSynchronization.__sync_get_all_stocks_symbols()
             cookie = DataSynchronization.__get_cookie_yahoo_finance_fake_request()
             crumb = DataSynchronization.__get_crumb_yahoo_finance(cookie)
-            stocks = DataSynchronization.__sync_initial_all_stocks_data(symbols, crumb, progressDialog)
+            stocks = DataSynchronization.__sync_initial_all_stocks_data(symbols, crumb)
         except:
             return stocks
         return stocks
@@ -2260,7 +2260,7 @@ class DataSynchronization(object):
 
 #region - Private Methods
 #region - Initial Stock Sync Methods
-    def __sync_get_all_stocks_symbols(progressDialog):
+    def __sync_get_all_stocks_symbols():
         j = json.loads(Networking.download_all_stock_analysis_symbols(APIConstants.HEADERS_ONE))
         symbols = []
         if j[APIConstants.FIELD_STATUS] == 200:
@@ -2280,17 +2280,15 @@ class DataSynchronization(object):
         return symbols
 
         
-    def __sync_initial_all_stocks_data(symbols, crumb, progressDialog):
+    def __sync_initial_all_stocks_data(symbols, crumb):
         arrStocks = []
 
         for i in range(0, len(symbols), 500):
             DataSynchronization.__sync_initial_stocks_data(crumb, symbols[i:i+500], arrStocks)
-            progressDialog.Update(round((i * 100) / len(symbols)))
 
         
         if len(symbols) % 500 != 0:
             DataSynchronization.__sync_initial_stocks_data(crumb, symbols[-(len(symbols) % 500):], arrStocks)
-        progressDialog.Update(100)
 
         return arrStocks
 
@@ -4830,10 +4828,7 @@ class ViewStocksPanel(BasePanel):
         self.__mList.init_layout()
 
         if self.__mStocks is None or len(self.__mStocks) == 0x0:
-            self.__mProgressDialog = wx.ProgressDialog(Strings.STR_INITIAL_SYNCHRONIZATION, "", maximum=100, parent=None, style=wx.PD_APP_MODAL|wx.PD_AUTO_HIDE|wx.PD_ELAPSED_TIME)
-            self.__mProgressDialog.Show()
-            self.__mStocks = DataSynchronization.sync_all_stocks_and_symbols(self.__mProgressDialog)
-            self.__mProgressDialog.Destroy()
+            self.__mStocks = DataSynchronization.sync_all_stocks_and_symbols()
 
         self.__mList.add_items_and_populate(self.__mStocks)
 
