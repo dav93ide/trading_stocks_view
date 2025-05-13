@@ -29,7 +29,7 @@ from pyglet.window import key
 from functools import singledispatch
 
 class Constants():
-    DISPLAY_SIZE_MAIN_FRAME = (1000, 500)
+    DISPLAY_SIZE_MAIN_FRAME = (2000, 1500)
     DISPLAY_SIZE_SEARCH_STOCKS_FRAME = (1000, 1000)
 
 class Colors():
@@ -2012,17 +2012,20 @@ class WxUtils(object):
         font = label.GetFont()
         font.SetPointSize(size)
         label.SetFont(font)
+        return font
 
     def set_font_bold(label):
         font = label.GetFont()
         font.SetWeight(wx.FONTWEIGHT_BOLD)
         label.SetFont(font)
+        return font
 
     def set_font_size_and_bold(label, size):
         font = label.GetFont()
         font.SetPointSize(size)
         font.SetWeight(wx.FONTWEIGHT_BOLD)
         label.SetFont(font)
+        return font
 
     def set_font_size_and_bold_and_roman(label, size):
         font = label.GetFont()
@@ -2030,6 +2033,7 @@ class WxUtils(object):
         font.SetWeight(wx.FONTWEIGHT_BOLD)
         font.SetFamily(wx.ROMAN)
         label.SetFont(font)
+        return font
 
 CHAR_FLOAT_POINT = "."
 CHAR_MINUS = "-"
@@ -2063,6 +2067,7 @@ class NumberUtils(object):
 class API(object):
     
 #region - API
+    URL_API_GOV_GET_SYMBOLS = "https://www.sec.gov/files/company_tickers.json"
     URL_API_STOCKANALYSIS_GET_SYMBOLS = "https://api.stockanalysis.com/api/screener/s/f?m=s&s=asc&c=s,n&i=stocks"
     URL_API_STOCKANALYSIS_GET_SYMBOLS_AND_STOCKS_INFO = "https://api.stockanalysis.com/api/screener/s/f?m=s&s=asc&c=s,n,industry,exchange,marketCap,price,volume&i=stocks"
 
@@ -2173,7 +2178,18 @@ class DataSynchronization(object):
         symbols = []
         if j[APIConstants.FIELD_STATUS] == 200:
             for d in j[APIConstants.FIELD_DATA][APIConstants.FIELD_DATA]:
-                symbols.append(d[APIConstants.FIELD_S])
+                if d[APIConstants.FIELD_S] not in symbols:
+                    symbols.append(d[APIConstants.FIELD_S])
+
+        jj = json.loads(Networking.download_gov_all_stock_symbols(APIConstants.HEADERS_ONE))
+        if jj:
+            for i in range(0, 100000):
+                if str(i) in jj.keys():
+                    if jj[str(i)]["ticker"] not in symbols:
+                        symbols.append(jj[str(i)]["ticker"])
+                else:
+                    break
+
         return symbols
 
         
@@ -2225,9 +2241,12 @@ class DataSynchronization(object):
                     exchange.set_currency(j[APIConstants.FIELD_CURRENCY])
                 elif APIConstants.FIELD_FINANCIAL_CURRENCY in j:
                     exchange.set_currency(j[APIConstants.FIELD_FINANCIAL_CURRENCY])
+                
+                if APIConstants.FIELD_EXCHANGE in j:
+                    exchange.set_name(j[APIConstants.FIELD_EXCHANGE])
 
-                exchange.set_name(j[APIConstants.FIELD_EXCHANGE])
-                exchange.set_full_name(j[APIConstants.FIELD_FULL_EXCHANGE_NAME])
+                if APIConstants.FIELD_FULL_EXCHANGE_NAME in j:
+                    exchange.set_full_name(j[APIConstants.FIELD_FULL_EXCHANGE_NAME])
 
                 stock.set_exchange(exchange)
 
@@ -2509,9 +2528,15 @@ class DataSynchronization(object):
                 if APIConstants.FIELD_ASK in j:
                     stock.set_ask(j[APIConstants.FIELD_ASK])
                     
-                stock.set_ask_size(j[APIConstants.FIELD_ASK_SIZE])
-                stock.set_bid(j[APIConstants.FIELD_BID])
-                stock.set_bid_size(j[APIConstants.FIELD_BID_SIZE])
+                if APIConstants.FIELD_ASK_SIZE in j:
+                    stock.set_ask_size(j[APIConstants.FIELD_ASK_SIZE])
+
+                if APIConstants.FIELD_BID in j:
+                    stock.set_bid(j[APIConstants.FIELD_BID])
+
+                if APIConstants.FIELD_BID_SIZE in j:
+                    stock.set_bid_size(j[APIConstants.FIELD_BID_SIZE])
+                    
                 stock.set_avg_volume_ten_days(j[APIConstants.FIELD_AVG_DAILY_VOLUME_TEN_DAYS])
                 stock.set_avg_volume_three_months(j[APIConstants.FIELD_AVG_DAILY_VOLUME_THREE_MONTH])
                 stock.set_fifty_two_weeks_range(j[APIConstants.FIELD_FIFTY_TWO_WEEK_RANGE])
@@ -2519,8 +2544,11 @@ class DataSynchronization(object):
                 stock.set_fifty_two_weeks_low(j[APIConstants.FIELD_FIFTY_TWO_WEEK_LOW])
                 stock.set_fifty_two_weeks_perc_change(j[APIConstants.FIELD_FIFTY_TWO_WEEK_CHANGE_PERCENT])
 
-                stock.set_shares_outstanding(j[APIConstants.FIELD_SHARES_OUTSTANDING])
-                stock.set_price_to_book(j[APIConstants.FIELD_PRICE_TO_BOOK])
+                if APIConstants.FIELD_SHARES_OUTSTANDING in j:
+                    stock.set_shares_outstanding(j[APIConstants.FIELD_SHARES_OUTSTANDING])
+
+                if APIConstants.FIELD_PRICE_TO_BOOK in j:
+                    stock.set_price_to_book(j[APIConstants.FIELD_PRICE_TO_BOOK])
 
                 stock.set_market_cap(j[APIConstants.FIELD_MARKET_CAP])
 
@@ -4974,10 +5002,14 @@ class ViewStocksPanel(BasePanel):
         hbs.Add(st, 0, wx.ALL|wx.EXPAND)
         hbs.AddSpacer(5)
         self.__mstMarketCap = wx.StaticText(panel, label = TextUtils.convert_number_to_millions_form(self.__mStockViewData.get_stock().get_market_cap()), style = wx.ALIGN_RIGHT)
-        WxUtils.set_font_size(self.__mstMarketCap, 15)
+        font = WxUtils.set_font_size(self.__mstMarketCap, 15)
         hbs.Add(self.__mstMarketCap, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstMarketCap.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_ENTERPRISE_VALUE, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5005,10 +5037,14 @@ class ViewStocksPanel(BasePanel):
         hbs.AddSpacer(5)
         self.__mstDayMax = wx.StaticText(panel, label = str(self.__mStockViewData.get_stock().get_day_max()), style = wx.ALIGN_RIGHT)
         self.__mstDayMax.SetForegroundColour(Colors.GREEN)
-        WxUtils.set_font_size(self.__mstDayMax, 15)
+        font = WxUtils.set_font_size(self.__mstDayMax, 15)
         hbs.Add(self.__mstDayMax, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstDayMax.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_DAY_MIN, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5032,10 +5068,14 @@ class ViewStocksPanel(BasePanel):
         hbs.Add(st, 0, wx.ALL|wx.EXPAND)
         hbs.AddSpacer(5)
         self.__mstAsk = wx.StaticText(panel, label = str(self.__mStockViewData.get_stock().get_ask()) + " x " + str(self.__mStockViewData.get_stock().get_ask_size() * 100), style = wx.ALIGN_RIGHT)
-        WxUtils.set_font_size(self.__mstAsk, 15)
+        font = WxUtils.set_font_size(self.__mstAsk, 15)
         hbs.Add(self.__mstAsk, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstAsk.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_BID, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5045,7 +5085,11 @@ class ViewStocksPanel(BasePanel):
         WxUtils.set_font_size(self.__mstBid, 15)
         hbs.Add(self.__mstBid, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstBid.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_SHARES_OUTSTANDING, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5068,11 +5112,15 @@ class ViewStocksPanel(BasePanel):
         hbs.Add(st, 0, wx.ALL|wx.EXPAND)
         hbs.AddSpacer(5)
         self.__mstFiftyTwoWeeksHigh = wx.StaticText(panel, label = str(self.__mStockViewData.get_stock().get_fifty_two_weeks_high()), style = wx.ALIGN_RIGHT)
-        WxUtils.set_font_size(self.__mstFiftyTwoWeeksHigh, 15)
+        font = WxUtils.set_font_size(self.__mstFiftyTwoWeeksHigh, 15)
         self.__mstFiftyTwoWeeksHigh.SetForegroundColour(Colors.GREEN)
         hbs.Add(self.__mstFiftyTwoWeeksHigh, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstFiftyTwoWeeksHigh.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_52_WEEKS_MIN, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5083,7 +5131,11 @@ class ViewStocksPanel(BasePanel):
         self.__mstFiftyTwoWeeksLow.SetForegroundColour(Colors.RED)
         hbs.Add(self.__mstFiftyTwoWeeksLow, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstFiftyTwoWeeksLow.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_52_WEEKS_PERC_CHANGE, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5110,10 +5162,14 @@ class ViewStocksPanel(BasePanel):
         hbs.Add(st, 0, wx.ALL|wx.EXPAND)
         hbs.AddSpacer(5)
         self.__mstVolume = wx.StaticText(panel, label = str(self.__mStockViewData.get_stock().get_volume()), style = wx.ALIGN_RIGHT)
-        WxUtils.set_font_size(self.__mstVolume, 15)
+        font = WxUtils.set_font_size(self.__mstVolume, 15)
         hbs.Add(self.__mstVolume, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstVolume.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_VOLUME_10_DAYS, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5123,7 +5179,11 @@ class ViewStocksPanel(BasePanel):
         WxUtils.set_font_size(self.__mstAvgVolumeTenDays, 15)
         hbs.Add(self.__mstAvgVolumeTenDays, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstAvgVolumeTenDays.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_VOLUME_3_MONTHS, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5145,11 +5205,15 @@ class ViewStocksPanel(BasePanel):
         WxUtils.set_font_size(st, 15)
         hbs.Add(st, 0, wx.ALL|wx.EXPAND)
         hbs.AddSpacer(5)
-        st = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_trailing_price_earnings(), 2)), style = wx.ALIGN_RIGHT)
-        WxUtils.set_font_size(st, 15)
-        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        st2 = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_trailing_price_earnings(), 2)), style = wx.ALIGN_RIGHT)
+        font = WxUtils.set_font_size(st2, 15)
+        hbs.Add(st2, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + st2.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_FORWARD_PRICE_EARNINGS, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5171,21 +5235,29 @@ class ViewStocksPanel(BasePanel):
         WxUtils.set_font_size(st, 15)
         hbs.Add(st, 0, wx.ALL|wx.EXPAND)
         hbs.AddSpacer(5)
-        st = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_pe_ratio(), 2)), style = wx.ALIGN_RIGHT)
-        WxUtils.set_font_size(st, 15)
-        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        st2 = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_pe_ratio(), 2)), style = wx.ALIGN_RIGHT)
+        font = WxUtils.set_font_size(st2, 15)
+        hbs.Add(st2, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + st2.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_PEG_RATIO, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
         hbs.Add(st, 0, wx.ALL|wx.EXPAND)
         hbs.AddSpacer(5)
-        st = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_peg_ratio(), 2)), style = wx.ALIGN_RIGHT)
-        WxUtils.set_font_size(st, 15)
-        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        st2 = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_peg_ratio(), 2)), style = wx.ALIGN_RIGHT)
+        WxUtils.set_font_size(st2, 15)
+        hbs.Add(st2, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + st2.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_PB_RATIO, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5207,11 +5279,15 @@ class ViewStocksPanel(BasePanel):
         WxUtils.set_font_size(st, 15)
         hbs.Add(st, 0, wx.ALL|wx.EXPAND)
         hbs.AddSpacer(5)
-        st = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_price_to_book(), 2)), style = wx.ALIGN_RIGHT)
-        WxUtils.set_font_size(st, 15)
-        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        st2 = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_price_to_book(), 2)), style = wx.ALIGN_RIGHT)
+        font = WxUtils.set_font_size(st2, 15)
+        hbs.Add(st2, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + st2.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_BOOK_VALUE_PER_SHARE, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5230,25 +5306,36 @@ class ViewStocksPanel(BasePanel):
         hbs.AddSpacer(10)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_DIVIDEND_DATE, style = wx.ALIGN_LEFT)
-        WxUtils.set_font_size(st, 15)
+        font = WxUtils.set_font_size(st, 15)
         hbs.Add(st, 0, wx.ALL|wx.EXPAND)
         hbs.AddSpacer(5)
         if self.__mStockViewData.get_stock().get_dividend_date() is not None:
-            st = wx.StaticText(panel, label = datetime.utcfromtimestamp(self.__mStockViewData.get_stock().get_dividend_date()).strftime('%d/%m/%Y'), style = wx.ALIGN_RIGHT)
-            WxUtils.set_font_size(st, 15)
-            hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+            st2 = wx.StaticText(panel, label = datetime.utcfromtimestamp(self.__mStockViewData.get_stock().get_dividend_date()).strftime('%d/%m/%Y'), style = wx.ALIGN_RIGHT)
+            WxUtils.set_font_size(st2, 15)
+            hbs.Add(st2, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        if self.__mStockViewData.get_stock().get_dividend_date() is not None:
+            w, h = dc.GetTextExtent(st.GetLabel() + st2.GetLabel())
+        else:
+            w, h = dc.GetTextExtent(st.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_ANNUAL_DIVIDEND_RATE, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
         hbs.Add(st, 0, wx.ALL|wx.EXPAND)
         hbs.AddSpacer(5)
-        st = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_trailing_annual_dividend_rate(), 3)), style = wx.ALIGN_RIGHT)
-        WxUtils.set_font_size(st, 15)
-        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        st2 = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_trailing_annual_dividend_rate(), 3)), style = wx.ALIGN_RIGHT)
+        WxUtils.set_font_size(st2, 15)
+        hbs.Add(st2, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + st2.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_ANNUAL_DIVIDEND_YELD, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
@@ -5267,14 +5354,18 @@ class ViewStocksPanel(BasePanel):
         hbs.AddSpacer(10)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_RATIO_ENTERPRISE_VALUE_REVENUE, style = wx.ALIGN_LEFT)
-        WxUtils.set_font_size(st, 15)
+        font = WxUtils.set_font_size(st, 15)
         hbs.Add(st, 0, wx.ALL|wx.EXPAND)
         hbs.AddSpacer(5)
-        st = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_enterprises_value_revenue_ratio(), 3)), style = wx.ALIGN_RIGHT)
-        WxUtils.set_font_size(st, 15)
-        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        st2 = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_stock().get_enterprises_value_revenue_ratio(), 3)), style = wx.ALIGN_RIGHT)
+        WxUtils.set_font_size(st2, 15)
+        hbs.Add(st2, 0, wx.ALL|wx.EXPAND)
 
-        hbs.AddSpacer(50)
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + st2.GetLabel())
+
+        hbs.AddSpacer(350 - w)
 
         st = wx.StaticText(panel, label = Strings.STR_FIELD_RATIO_ENTERPRISE_VALUE_EBITDA, style = wx.ALIGN_LEFT)
         WxUtils.set_font_size(st, 15)
