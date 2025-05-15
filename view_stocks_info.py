@@ -5190,13 +5190,22 @@ class ViewStocksPanel(BasePanel):
             list_pp = self.__mList.GetCountPerPage()
             stocks = []
             filteredItems = self.__mList.get_filtered_items()
-            for i in range(pos, pos + list_pp):
-                s = filteredItems[i]
-                if s is not None:
-                    stocks.append(s)
-            stocks = DataSynchronization.sync_update_all_stocks(stocks)
+            if pos + list_pp <= len(filteredItems):
+                for i in range(pos, pos + list_pp):
+                    s = filteredItems[i]
+                    if s is not None:
+                        stocks.append(s)
+                stocks = DataSynchronization.sync_update_all_stocks(stocks)
+                self.__mList.add_specific_filtered_items(stocks, list_top, pos + list_pp)
+            else:
+                for i in range(pos, len(filteredItems)):
+                    s = filteredItems[i]
+                    if s is not None:
+                        stocks.append(s)
+                stocks = DataSynchronization.sync_update_all_stocks(stocks)
+                self.__mList.add_specific_filtered_items(stocks, list_top, len(filteredItems))
+            
 
-            self.__mList.add_specific_filtered_items(stocks, list_top, pos + list_pp)
             time.sleep(30)
 #endregion
 
