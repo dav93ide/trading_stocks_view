@@ -101,6 +101,9 @@ class Strings(object):
     STR_STOCK_DATA = "Stock Data"
     STR_DIVIDEND_DATA = "Dividend Data"
     STR_UNDEFINED = "Undefined"
+    STR_FIELD_EPS_CURRENT_YEAR = "EPS Current Year:"
+    STR_FIELD_EPS_TRAILING_TWELVE_MONTHS = "EPS Trailing 12 Months:"
+    STR_FIELD_EPS_FORWARD = "EPS Forward:"
 
 class APIConstants(object):
 
@@ -2890,11 +2893,33 @@ class StocksViewList(wx.ListCtrl):
 
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.on_item_selected)
 
+    def get_item_position(self, item):
+        for i in range(0, len(self.__mFilteredItems)):
+            item = self.__mFilteredItems[i]
+            if item.get_id() == item.get_id():
+                return i
+        return -1
+
+    def get_filtered_item_position(self, item):
+        for i in range(0, len(self.__mFilteredItems)):
+            item = self.__mFilteredItems[i]
+            if item.get_id() == item.get_id():
+                return i
+        return -1
+
     def add_items_and_populate(self, items):
         self.__mItems = items
         self.__mFilteredItems = items
         self.filter_items()
         self.populate_list()
+
+    def add_specific_filtered_items(self, items, start, end):
+        j = 0
+        for i in range(start, end):
+            self.__mFilteredItems[i] = items[j]
+            j += 1
+            if j >= len(items):
+                break
 
     def populate_list(self):
         self.DeleteAllItems()
@@ -5078,28 +5103,22 @@ class ViewStocksPanel(BasePanel):
         frame.Show()
 
     def __repopulate_list(self, event):
-        if self.__mStocks is not None and len(self.__mStocks) > 0:
-            stocks = []
-            for s in self.__mStocks:
-                if s is not None:
-                    stocks.append(s)
-            self.__mStocks = stocks
-            list_total = self.__mList.GetItemCount()
-            list_top = self.__mList.GetTopItem()
-            list_pp = self.__mList.GetCountPerPage()
-            list_bottom = min(list_top + list_pp, list_total - 1)
-            self.__mList.add_items_and_populate(self.__mStocks)
-            if list_bottom != 0:
-                self.__mList.EnsureVisible((list_bottom - 1))
-            filtered = self.__mList.get_filtered_items()
-            if filtered is not None and len(filtered) > 0:
-                for i in range(0, len(filtered)):
-                    if self.__mStockViewData is not None and self.__mStockViewData.get_stock().get_id() == filtered[i].get_id():
-                        self.__mList.unbind_listener()
-                        self.__mList.Select(i)
-                        self.__mList.bind_listener()
-                        break
-            self.__mLeftPanel.Layout()
+        list_total = self.__mList.GetItemCount()
+        list_top = self.__mList.GetTopItem()
+        list_pp = self.__mList.GetCountPerPage()
+        list_bottom = min(list_top + list_pp, list_total - 1)
+        self.__mList.populate_list()
+        if list_bottom != 0:
+            self.__mList.EnsureVisible((list_bottom - 1))
+        filtered = self.__mList.get_filtered_items()
+        if filtered is not None and len(filtered) > 0:
+            for i in range(0, len(filtered)):
+                if self.__mStockViewData is not None and self.__mStockViewData.get_stock() is not None and self.__mStockViewData.get_stock().get_sign() == filtered[i].get_sign():
+                    self.__mList.unbind_listener()
+                    self.__mList.Select(i)
+                    self.__mList.bind_listener()
+                    break
+        self.__mLeftPanel.Layout()
         
     def __update_left_panel_data(self, event):
         if self.__mStockViewData is not None:
@@ -5166,20 +5185,18 @@ class ViewStocksPanel(BasePanel):
 
     def __update_list_thread(self):
         while not self.__mThreadUpdateList.stopped():
+            list_top = self.__mList.GetTopItem()
+            pos = self.__mList.get_filtered_item_position(list_top)
+            list_pp = self.__mList.GetCountPerPage()
             stocks = []
-            for s in self.__mStocks:
+            filteredItems = self.__mList.get_filtered_items()
+            for i in range(pos, pos + list_pp):
+                s = filteredItems[i]
                 if s is not None:
                     stocks.append(s)
-            self.__mStocks = DataSynchronization.sync_update_all_stocks(stocks)
+            stocks = DataSynchronization.sync_update_all_stocks(stocks)
 
-            if self.__mStockViewData is not None:
-                stock = None
-                for s in stocks:
-                    if self.__mStockViewData.get_stock().get_sign() == s.get_sign():
-                        stock = s
-                        break 
-                if s is not None:
-                    self.__mStockViewData.set_stock(stock)
+            self.__mList.add_specific_filtered_items(stocks, list_top, pos + list_pp)
             time.sleep(30)
 #endregion
 
