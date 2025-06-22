@@ -14,6 +14,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import requests
 import threading
+import logging
+import yaml
+import io
 from wx.lib.pubsub import pub
 from multipledispatch import dispatch
 from functools import singledispatch
@@ -44,8 +47,90 @@ class Icons():
     ICON_SEARCH = "Icons/search.png"
 
 class Strings(object):
+
+    STR_MAIN_FRAME = "Main Frame"
+    STR_TRADING_STOCKS_VIEW = "Trading Stocks View"
+
+#region - Strings Menu
+    STR_MAIN_MENU = "Main Menu"
+    STR_MENU_STOCKS = "Stocks"
+    STR_MENU_CRYPTO = "Crypto"
+
+#region - Strings Menu Stocks
+    STR_MENU_ASSETS_VIEW = "View Assets"
+#endregion  
+#endregion
+
     STR_INITIAL_SYNCHRONIZATION = "Initial Synchronization"
+    STR_SAVE = "Save"
+    STR_RESET_ALL = "Reset All"
+    STR_ABORT = "Abort"
+    STR_CONFIRM = "Confirm"
+    STR_STOCKS = "Stocks"
+    STR_CRYPTOS = "Cryptos"
+
     STR_SEARCH = "Search"
+    STR_NAME = "Name"
+    STR_TYPE = "Type"
+    STR_USERNAME = "Username"
+    STR_PASSWORD = "Password"
+    STR_PASSWORD_CHECK = "Password Check"
+    STR_EMAIL = "Email"
+    STR_PERCENTAGE_CAPITAL = "%"
+    STR_TOT_CAPITAL = "Tot $"
+    STR_USER_CAPITAL = "User Capital"
+    
+    STR_NAME_TRADING_STRATEGY = "Name Trading Strategy"
+    STR_TRADING_STRATEGY_DATA = "Trading Strategy Data"
+
+    STR_MAX_DAY_CHANGE = "Max Day Change"
+    STR_MIN_DAY_CHANGE = "Min Day Change"
+    STR_MAX_MARKET_CAP = "Max Market Cap"
+    STR_MIN_MARKET_CAP = "Min Market Cap"
+    STR_MAX_DAY_RANGE = "Max Day Range"
+    STR_MIN_DAY_RANGE = "Min Day Range"
+    STR_MAX_WEEK_RANGE = "Max Week Range"
+    STR_MIN_WEEK_RANGE = "Min Week Range"
+    STR_MAX_MONTH_RANGE = "Max Month Range"
+    STR_MIN_MONTH_RANGE = "Min Month Range"
+    STR_MAX_YEAR_RANGE = "Max Year Range"
+    STR_MIN_YEAR_RANGE = "Min Year Range"
+    STR_MAX_DAY_VOLUME = "Max Daily Volume"
+    STR_MIN_DAY_VOLUME = "Min Daily Volume"
+    STR_MAX_COMPANY_VALUE = "Max Company Value"
+    STR_MIN_COMPANY_VALUE = "Min Company Value"
+    STR_MAX_RATIO_COMPANY_VALUE_MARKET_CAP = "Max Ratio CV/MC"
+    STR_MIN_RATIO_COMPANY_VALUE_MARKET_CAP = "Min Ratio CV/MC"
+    STR_MAX_BETA = "Max BETA"
+    STR_MIN_BETA = "Min BETA"
+    STR_MAX_RATIO_PE = "Max Ratio PE"
+    STR_MIN_RATIO_PE = "Min Ratio PE"
+    STR_MAX_EPS = "Max EPS"
+    STR_MIN_EPS = "Min EPS"
+    STR_MAX_YEAR_TARGET = "Max Year Target"
+    STR_MIN_YEAR_TARGET = "Min Year Target"
+    STR_MAX_TRAILING_PE = "Max Trailing PE"
+    STR_MIN_TRAILING_PE = "Min Trailing PE"
+    STR_MAX_FORWARD_PE = "Max Forward PE"
+    STR_MIN_FORWARD_PE = "Min Forward PE"
+    STR_MAX_PEG_RATIO = "Max PEG Ratio"
+    STR_MIN_PEG_RATIO = "Min PEG Ratio"
+    STR_MAX_PRICE_SALES = "Max Price Sales"
+    STR_MIN_PRICE_SALES = "Min Price Sales"
+    STR_MAX_PRICE_BOOK = "Max Price Book"
+    STR_MIN_PRICE_BOOK = "Min Price Book"
+    STR_MAX_COMPANY_VALUE_REVENUE = "Max CV/RV"
+    STR_MIN_COMPANY_VALUE_REVENUE = "Min CV/RV"
+    STR_MAX_COMPANY_VALUE_EBITDA = "Max CV/EBITDA"
+    STR_MIN_COMPANY_VALUE_EBITDA = "Min CV/EBITDA"
+
+    STR_NAME_NEW_BOT = "Name New Bot"
+    STR_TRADING_STRATEGY_TYPE = "Trading Strategy Type"
+    STR_TRADING_STRATEGY = "Trading Strategy"
+
+    STR_ERROR = "Error"
+    STR_SUCCESS = "Success"
+
     STR_1D = "1 Day"
     STR_1D_VALUES = "1 Day Values"
     STR_1D_VOLUME = "1 Day Volume"
@@ -99,11 +184,92 @@ class Strings(object):
     STR_FIELD_POST_MARKET = "Post Market: $"
     STR_FIFTY_WEEKS_STOCK_DATA = "50 Weeks Stock Data"
     STR_STOCK_DATA = "Stock Data"
+    STR_CRYPTO_DATA = "Crypto Data"
     STR_DIVIDEND_DATA = "Dividend Data"
     STR_UNDEFINED = "Undefined"
     STR_FIELD_EPS_CURRENT_YEAR = "EPS Current Year:"
     STR_FIELD_EPS_TRAILING_TWELVE_MONTHS = "EPS Trailing 12 Months:"
     STR_FIELD_EPS_FORWARD = "EPS Forward:"
+    STR_FIELD_CIRCULATING_SUPPLY = "Circulating Supply:"
+    STR_FIELD_VOLUME_24H = "Volume 24H:"
+    STR_FIELD_VOLUME_ALL_CURRENCIES = "Volume All Currencies:"
+
+    STR_SPECIFICS_BOT = "Specifics of the BOT:"
+    STR_DATA_MAKING_BOT = [
+        "Max Day Change: {}",
+        "Max Day Change: {}",
+        "Max Market Cap: {}",
+        "Max Market Cap: {}",
+        "Max Day Range: {}",
+        "Max Day Range: {}",
+        "Max Week Range: {}",
+        "Max Week Range: {}",
+        "Max Month Range: {}",
+        "Max Month Range: {}",
+        "Max Year Range: {}",
+        "Max Year Range: {}",
+        "Max Day Volume: {}",
+        "Max Day Volume: {}",
+        "Max Company Value: {}",
+        "Max Company Value: {}",
+        "Max Ratio Company Value Market Cap: {}",
+        "Max Ratio Company Value Market Cap: {}",
+        "Max Beta: {}",
+        "Max Beta: {}",
+        "Max Ratio P E: {}",
+        "Max Ratio P E: {}",
+        "Max E P S: {}",
+        "Max E P S: {}",
+        "Max Year Target: {}",
+        "Max Year Target: {}",
+        "Max Trailing P E: {}",
+        "Max Trailing P E: {}",
+        "Max Forward P E: {}",
+        "Max Forward P E: {}",
+        "Max Peg Ratio: {}",
+        "Max Peg Ratio: {}",
+        "Max Price Sales: {}",
+        "Max Price Sales: {}",
+        "Max Price Book: {}",
+        "Max Price Book: {}",
+        "Max Company Value Revenue: {}",
+        "Max Company Value Revenue: {}",
+        "Max Company Value Ebitda: {}",
+        "Max Company Value Ebitda: {}"
+    ]
+
+#region - Error Strings
+    STR_ERROR_JSON = "Json Error"
+    STR_ERROR_GRAPH = "Graph Error"
+#endregion
+
+#region - Messages Question Strings
+    STR_MSG_QUESTION_RESET_ALL_PARAMS_ON_VIEW = "Resettare tutti i paremetri inseriti?\nL'operazione e' irreversibile.\n\nContinuare?"
+#endregion
+
+#region - Error Messages Strings
+    STR_MSG_ERROR_MISSING_VALUES = "Valore mancante per i campi:\n%s"
+    STR_MSG_ERROR_WRONG_EMAIL_FORMAT = "Formato Email non valido." 
+    STR_MSG_ERROR_DIFFERENT_PASSWORDS = "Le Password inserite non corrispondono." 
+    STR_MSG_ERROR_VALUE = "Valore Inserito Non Valido." 
+    STR_MSG_ERROR_USERNAME_PLATFORM_ALREADY_PRESENT = "Username e Piattaforma Gia` Presenti"
+    STR_MSG_ERROR_INSERTED_CAPITAL_TOO_HIGH = "Capitale inserito troppo alto."
+    STR_MSG_ERROR_NO_NAME_INSERTED = "Necessario Inserire Un Nome Per Continuare."
+    STR_MSG_ERROR_NAME_ALREADY_PRESENT = "Nome Gia` Presente."
+#endregion
+
+#region - Success Messages Strings 
+    STR_MSG_SUCCESS_INSERT_DATA = "Dati Inseriti Con Successo!"
+#endregion
+
+#region - Dialog Title Strings
+    STR_DIALOG_TITLE_QUESTION_RESET_ALL_PARAMS = "Reset All Params?"
+#endregion
+
+#region - ProgressDialog Strings
+    STR_PD_INITIAL_DOWNLOAD_SYMBOLS = "Initial Download Symbols."
+    STR_PD_INITIAL_DOWNLOAD_STOCK_DATA = "Initial Download Stock Data."
+#endregion
 
 class APIConstants(object):
 
@@ -265,6 +431,23 @@ class APIConstants(object):
     FIELD_VOLUME = "volume"
     FIELD_CLOSE = "close"
     FIELD_OPEN = "open"
+#endregion
+
+#region - URL_API_YAHOO_FINANCE_SCREENER_CRYPTOCURRENCIES - Json Fields
+    FIELD_FINANCE = "finance"
+    FIELD_QUOTES = "quotes"
+    FIELD_TOTAL = "total"
+    FIELD_COIN_IMAGE_URL = "coinImageUrl"
+    FIELD_FIFTY_TWO_WEEK_LOW_CHANGE_PERCENT = "fiftyTwoWeekLowChangePercent"
+    FIELD_FIFTY_TWO_WEEK_HIGH_CHANGE_PERCENT = "fiftyTwoWeekHighChangePercent"
+    FIELD_FIFTY_TWO_WEEK_LOW_CHANGE = "fiftyTwoWeekLowChange"
+    FIELD_FIFTY_TWO_WEEK_HIGH_CHANGE = "fiftyTwoWeekHighChange"
+    FIELD_FIFTY_TWO_WEEK_LOW = "fiftyTwoWeekLow"
+    FIELD_FIFTY_TWO_WEEK_HIGH = "fiftyTwoWeekHigh"
+    FIELD_CIRCULATING_SUPPLY = "circulatingSupply"
+    FIELD_REGULAR_MARKET_DAY_RANGE = "regularMarketDayRange"
+    FIELD_VOLUME_24H = "volume24Hr"
+    FIELD_VOLUME_ALL_CURRENCIES = "volumeAllCurrencies"
 #endregion
 
 T = TypeVar('T')
@@ -662,6 +845,152 @@ class BaseAsset(BaseClass):
                 f"#- __mFifityTwoWeeksLow: {self.__mFifityTwoWeeksLow}\n"\
                 f"#- __mFiftyTwoWeeksPercChange: {self.__mFiftyTwoWeeksPercChange}\n"\
                 "####################"
+
+class Cryptocurrency(BaseAsset):
+
+    __mImageUrl = None
+    __mCategory = None
+    __mStartDate = None
+    __mAlgorithm = None
+    __mCirculatingSupply = None
+    __mMaxSupply = None
+    __mMarketDominance = None
+    __mMarketRank = None
+    __mMarketChangePercent = None
+    __mFiftyTwoWeekLowChangePercent = None
+    __mFiftyTwoWeekHighChangePercent = None
+    __mFiftyTwoWeekLowChange = None
+    __mFiftyTwoWeekHighChange = None
+    __mRegularMarketDayRange = None
+    __mVolumeTwentyFourHours = None
+    __mVolumeAllCurrencies = None
+
+    def __init__(self, id):
+        super().__init__(id)
+
+#region - Getter Methods
+    def get_img_url(self):
+        return self.__mImageUrl
+
+    def get_category(self):
+        return self.__mCategory 
+
+    def get_start_date(self):
+        return self.__mStartDate 
+
+    def get_algorithm(self):
+        return self.__mAlgorithm 
+
+    def get_circulating_supply(self):
+        return self.__mCirculatingSupply 
+
+    def get_max_supply(self):
+        return self.__mMaxSupply 
+
+    def get_market_dominance(self):
+        return self.__mMarketDominance 
+
+    def get_market_rank(self):
+        return self.__mMarketRank 
+
+    def get_market_change_percent(self):
+        return self.__mMarketChangePercent
+
+    def get_fifty_two_week_low_change_percent(self):
+        return self.__mstFifityTwoWeeksPercChange
+
+    def get_fifty_two_week_high_change_percent(self):
+        return self.__mFiftyTwoWeekHighChangePercent
+
+    def get_fifty_two_week_low_change(self):
+        return self.__mFiftyTwoWeekLowChange
+
+    def get_fifty_two_week_high_change(self):
+        return self.__mFiftyTwoWeekHighChange
+
+    def get_regular_market_day_range(self):
+        return self.__mRegularMarketDayRange
+        
+    def get_volume_twenty_four_hours(self):
+        return self.__mVolumeTwentyFourHours
+
+    def get_volume_all_currencies(self):
+        return self.__mVolumeAllCurrencies
+#endregion
+
+#region - Setter Methods
+    def set_image_url(self, url):
+        self.__mImageUrl = url
+
+    def set_category(self, category):
+        self.__mCategory  = category 
+
+    def set_start_date(self, startDate):
+        self.__mStartDate  = startDate 
+
+    def set_algorithm(self, algorithm):
+        self.__mAlgorithm  = algorithm 
+
+    def set_circulating_supply(self, circulatingSupply):
+        self.__mCirculatingSupply  = circulatingSupply 
+
+    def set_max_supply(self, maxSupply):
+        self.__mMaxSupply  = maxSupply 
+
+    def set_market_dominance(self, marketDominance):
+        self.__mMarketDominance  = marketDominance 
+
+    def set_market_rank(self, marketRank):
+        self.__mMarketRank  = marketRank 
+
+    def set_market_change_percent(self, percent):
+        self.__mMarketChangePercent = percent
+
+    def set_fifty_two_week_low_change_percent(self, percent):
+        self.__mFiftyTwoWeekLowChangePercent = percent
+
+    def set_fifty_two_week_high_change_percent(self, percent):
+        self.__mFiftyTwoWeekHighChangePercent = percent
+
+    def set_fifty_two_week_low_change(self, change):
+        self.__mFiftyTwoWeekLowChange = change
+
+    def set_fifty_two_week_high_change(self, change):
+        self.__mFiftyTwoWeekHighChange = change
+
+    def set_regular_market_day_range(self, rng):
+        self.__mRegularMarketDayRange = rng
+
+    def set_volume_twenty_four_hours(self, volume):
+        self.__mVolumeTwentyFourHours = volume
+
+    def set_volume_all_currencies(self, volume):
+        self.__mVolumeAllCurrencies = volume
+#endregion
+
+    # To String
+    def __str__(self):
+        return  "####################\n"\
+                f"# {ETF.__name__}\n"\
+                f"{super().__str__()}\n"\
+                f"#- __mImageUrl: {self.__mImageUrl}\n"\
+                f"#- __mCategory: {self.__mCategory}\n"\
+                f"#- __mStartDate: {self.__mStartDate}\n"\
+                f"#- __mAlgorithm: {self.__mAlgorithm}\n"\
+                f"#- __mCirculatingSupply: {self.__mCirculatingSupply}\n"\
+                f"#- __mMaxSupply: {self.__mMaxSupply}\n"\
+                f"#- __mMarketDominance: {self.__mMarketDominance}\n"\
+                f"#- __mMarketRank: {self.__mMarketRank}\n"\
+                f"#- __mMarketChangePercent: {self.__mMarketChangePercent}\n"\
+                f"#- __mFiftyTwoWeekLowChangePercent: {self.__mFiftyTwoWeekLowChangePercent}\n"\
+                f"#- __mFiftyTwoWeekHighChangePercent: {self.__mFiftyTwoWeekHighChangePercent}\n"\
+                f"#- __mFiftyTwoWeekLowChange: {self.__mFiftyTwoWeekLowChange}\n"\
+                f"#- __mFiftyTwoWeekHighChange: {self.__mFiftyTwoWeekHighChange}\n"\
+                f"#- __mRegularMarketDayRange: {self.__mRegularMarketDayRange}\n"\
+                f"#- __mVolumeTwentyFourHours: {self.__mVolumeTwentyFourHours}\n"\
+                f"#- __mVolumeAllCurrencies: {self.__mVolumeAllCurrencies}\n"\
+                "####################"
+
 
 class Stock(BaseAsset):
 
@@ -1167,7 +1496,402 @@ class Stock(BaseAsset):
                 f"#- __mPriceEpsCurrentYearRatio: {self.__mPriceEpsCurrentYearRatio}\n"\
                 "####################"
     
+class FilterSearchCryptoPanel():
 
+    __mMaxPrice = None
+    __mMinPrice = None
+    __mMaxVolume = None
+    __mMinVolume = None
+
+    __mMaxPriceMover = None
+    __mMinPriceMover = None
+    __mMaxVolumeMover = None
+    __mMinVolumeMover = None
+
+    __mValueMaxMover = None
+    __mValueMinMover = None
+
+    __mMoverAboveZero = None
+    __mMoverAboveFifty = None
+    __mMoverAboveHundred = None
+    __mMoverBelowZero = None
+    __mMoverBelowFifty = None
+
+    __mMoverAboveZeroToTen = None
+    __mMoverAboveTenToTwenty = None
+    __mMoverAboveTwentyToThirty = None
+    __mMoverAboveThirtyToFourty = None
+
+    __mMoverBelowZeroToTen = None
+    __mMoverBelowTenToTwenty = None
+    __mMoverBelowTwentyToThirty = None
+    __mMoverBelowThirtyToFourty = None
+
+    __mFiftyValueMaxMover = None
+    __mFiftyValueMinMover = None
+
+    __mMoverFiftyWeeksAboveZero = None
+    __mMoverFiftyWeeksAboveFifty = None
+    __mMoverFiftyWeeksAboveHundred = None
+    __mMoverFiftyWeeksBelowZero = None
+    __mMoverFiftyWeeksBelowFifty = None
+
+    __mMoverFiftyWeeksAboveZeroToTen = None
+    __mMoverFiftyWeeksAboveTenToTwenty = None
+    __mMoverFiftyWeeksAboveTwentyThirty = None
+    __mMoverFiftyWeeksAboveThirtyFourty = None
+
+    __mMoverFiftyWeeksBelowZeroToTen = None
+    __mMoverFiftyWeeksBelowTenToTwenty = None
+    __mMoverFiftyWeeksBelowTwentyThirty = None
+    __mMoverFiftyWeeksBelowThirtyFourty = None
+
+#region - Get Methods
+    def get_max_price(self):
+        return self.__mMaxPrice
+
+    def get_min_price(self):
+        return self.__mMinPrice
+
+    def get_max_volume(self):
+        return self.__mMaxVolume
+
+    def get_min_volume(self):
+        return self.__mMinVolume
+
+    def get_max_price_mover(self):
+        return self.__mMaxPriceMover
+
+    def get_min_price_mover(self):
+        return self.__mMinPriceMover
+
+    def get_max_volume_mover(self):
+        return self.__mMaxVolumeMover
+
+    def get_min_volume_mover(self):
+        return self.__mMinVolumeMover
+
+    def get_value_max_mover(self):
+	    return self.__mValueMaxMover
+
+    def get_value_min_mover(self):
+	    return self.__mValueMinMover
+
+    def get_mover_above_zero(self):
+        return self.__mMoverAboveZero
+
+    def get_mover_above_fifty(self):
+        return self.__mMoverAboveFifty
+
+    def get_mover_above_hundred(self):
+        return self.__mMoverAboveHundred
+
+    def get_mover_below_zero(self):
+        return self.__mMoverBelowZero
+
+    def get_mover_below_fifty(self):
+        return self.__mMoverBelowFifty
+
+    def get_mover_above_zero_to_ten(self):
+        return self.__mMoverAboveZeroToTen
+
+    def get_mover_above_ten_to_twenty(self):
+        return self.__mMoverAboveTenToTwenty
+
+    def get_mover_above_twenty_to_thirty(self):
+        return self.__mMoverAboveTwentyToThirty
+
+    def get_mover_above_thirty_to_fourty(self):
+        return self.__mMoverAboveThirtyToFourty
+
+    def get_mover_below_zero_to_ten(self):
+        return self.__mMoverBelowZeroToTen
+
+    def get_mover_below_ten_to_twenty(self):
+        return self.__mMoverBelowTenToTwenty
+
+    def get_mover_below_twenty_to_thirty(self):
+        return self.__mMoverBelowTwentyToThirty
+
+    def get_mover_below_thirty_to_fourty(self):
+        return self.__mMoverBelowThirtyToFourty
+
+    def get_fifty_value_max_mover(self):
+        return self.__mFiftyValueMaxMover
+
+    def get_fifty_value_min_mover(self):
+        return self.__mFiftyValueMinMover
+
+    def get_mover_fifty_weeks_above_zero(self):
+	    return self.__mMoverFiftyWeeksAboveZero 
+
+    def get_mover_fifty_weeks_above_fifty(self):
+        return self.__mMoverFiftyWeeksAboveFifty 
+
+    def get_mover_fifty_weeks_above_hundred(self):
+        return self.__mMoverFiftyWeeksAboveHundred 
+
+    def get_mover_fifty_weeks_below_zero(self):
+        return self.__mMoverFiftyWeeksBelowZero 
+
+    def get_mover_fifty_weeks_below_fifty(self):
+        return self.__mMoverFiftyWeeksBelowFifty 
+
+    def get_mover_fifty_weeks_above_zero_to_ten(self):
+	    return self.__mMoverFiftyWeeksAboveZeroToTen
+
+    def get_mover_fifty_weeks_above_ten_to_twenty(self):
+        return self.__mMoverFiftyWeeksAboveTenToTwenty
+
+    def get_mover_fifty_weeks_above_twenty_to_thirty(self):
+        return self.__mMoverFiftyWeeksAboveTwentyThirty
+
+    def get_mover_fifty_weeks_above_thirty_to_fourty(self):
+        return self.__mMoverFiftyWeeksAboveThirtyFourty
+
+    def get_mover_fifty_weeks_below_zero_to_ten(self):
+        return self.__mMoverFiftyWeeksBelowZeroToTen 
+
+    def get_mover_fifty_weeks_below_ten_to_twenty(self):
+        return self.__mMoverFiftyWeeksBelowTenToTwenty 
+
+    def get_mover_fifty_weeks_below_twenty_to_thirty(self):
+        return self.__mMoverFiftyWeeksBelowTwentyThirty 
+
+    def get_mover_fifty_weeks_below_thirty_to_fourty(self):
+        return self.__mMoverFiftyWeeksBelowThirtyFourty
+#endregion
+
+#region - Set Methods
+    def set_max_price(self, maxPrice):
+        self.__mMaxPrice = maxPrice
+
+    def set_min_price(self, minPrice):
+        self.__mMinPrice = minPrice
+
+    def set_max_volume(self, maxVolume):
+        self.__mMaxVolume = maxVolume
+
+    def set_min_volume(self, minVolume):
+        self.__mMinVolume = minVolume
+
+    def set_max_price_mover(self, maxPriceMover):
+        self.__mMaxPriceMover = maxPriceMover
+
+    def set_min_price_mover(self, minPriceMover):
+        self.__mMinPriceMover = minPriceMover
+
+    def set_max_volume_mover(self, maxVolumeMover):
+        self.__mMaxVolumeMover = maxVolumeMover
+
+    def set_min_volume_mover(self, minVolumeMover):
+        self.__mMinVolumeMover = minVolumeMover
+
+    def set_value_max_mover(self, valueMaxMover):
+	    self.__mValueMaxMover = valueMaxMover
+
+    def set_value_min_mover(self, valueMinMover):
+	    self.__mValueMinMover = valueMinMover
+
+    def set_mover_above_zero(self, moverAboveZero):
+        self.__mMoverAboveZero = moverAboveZero
+
+    def set_mover_above_fifty(self, moverAboveFifty):
+        self.__mMoverAboveFifty = moverAboveFifty
+
+    def set_mover_above_hundred(self, moverAboveHundred):
+        self.__mMoverAboveHundred = moverAboveHundred
+
+    def set_mover_below_zero(self, moverBelowZero):
+        self.__mMoverBelowZero = moverBelowZero
+
+    def set_mover_below_fifty(self, moverBelowFifty):
+        self.__mMoverBelowFifty = moverBelowFifty
+
+    def set_mover_above_zero_to_ten(self, moverAboveZeroToTen):
+        self.__mMoverAboveZeroToTen = moverAboveZeroToTen
+
+    def set_mover_above_ten_to_twenty(self, moverAboveTenToTwenty):
+        self.__mMoverAboveTenToTwenty = moverAboveTenToTwenty
+
+    def set_mover_above_twenty_to_thirty(self, moverAboveTwentyToThirty):
+        self.__mMoverAboveTwentyToThirty = moverAboveTwentyToThirty
+
+    def set_mover_above_thirty_to_fourty(self, moverAboveThirtyToFourty):
+        self.__mMoverAboveThirtyToFourty = moverAboveThirtyToFourty
+
+    def set_mover_below_zero_to_ten(self, moverBelowZeroToTen):
+        self.__mMoverBelowZeroToTen = moverBelowZeroToTen
+
+    def set_mover_below_ten_to_twenty(self, moverBelowTenToTwenty):
+        self.__mMoverBelowTenToTwenty = moverBelowTenToTwenty
+
+    def set_mover_below_twenty_to_thirty(self, moverBelowTwentyToThirty):
+        self.__mMoverBelowTwentyToThirty = moverBelowTwentyToThirty
+
+    def set_mover_below_thirty_to_fourty(self, moverBelowThirtyToFourty):
+        self.__mMoverBelowThirtyToFourty = moverBelowThirtyToFourty
+
+    def set_fifty_value_max_mover(self, fiftyValueMaxMover):
+        self.__mFiftyValueMaxMover = fiftyValueMaxMover
+
+    def set_fifty_value_min_mover(self, fiftyValueMinMover):
+        self.__mFiftyValueMinMover = fiftyValueMinMover
+
+    def set_mover_fifty_weeks_above_zero(self, moverFiftyWeeksAboveZero):
+	    self.__mMoverFiftyWeeksAboveZero  = moverFiftyWeeksAboveZero 
+
+    def set_mover_fifty_weeks_above_fifty(self, moverFiftyWeeksAboveFifty):
+        self.__mMoverFiftyWeeksAboveFifty  = moverFiftyWeeksAboveFifty 
+
+    def set_mover_fifty_weeks_above_hundred(self, moverFiftyWeeksAboveHundred):
+        self.__mMoverFiftyWeeksAboveHundred  = moverFiftyWeeksAboveHundred 
+
+    def set_mover_fifty_weeks_below_zero(self, moverFiftyWeeksBelowZero):
+        self.__mMoverFiftyWeeksBelowZero  = moverFiftyWeeksBelowZero 
+
+    def set_mover_fifty_weeks_below_fifty(self, moverFiftyWeeksBelowFifty):
+        self.__mMoverFiftyWeeksBelowFifty  = moverFiftyWeeksBelowFifty 
+
+    def set_mover_fifty_weeks_above_zero_to_ten(self, moverFiftyWeeksAboveZeroToTen):
+	    self.__mMoverFiftyWeeksAboveZeroToTen = moverFiftyWeeksAboveZeroToTen
+
+    def set_mover_fifty_weeks_above_ten_to_twenty(self, moverFiftyWeeksAboveTenToTwenty):
+        self.__mMoverFiftyWeeksAboveTenToTwenty = moverFiftyWeeksAboveTenToTwenty
+
+    def set_mover_fifty_weeks_above_twenty_to_thirty(self, moverFiftyWeeksAboveTwentyThirty):
+        self.__mMoverFiftyWeeksAboveTwentyThirty = moverFiftyWeeksAboveTwentyThirty
+
+    def set_mover_fifty_weeks_above_thirty_to_fourty(self, moverFiftyWeeksAboveThirtyFourty):
+        self.__mMoverFiftyWeeksAboveThirtyFourty = moverFiftyWeeksAboveThirtyFourty
+
+    def set_mover_fifty_weeks_below_zero_to_ten(self, moverFiftyWeeksBelowZeroToTen):
+        self.__mMoverFiftyWeeksBelowZeroToTen  = moverFiftyWeeksBelowZeroToTen 
+
+    def set_mover_fifty_weeks_below_ten_to_twenty(self, moverFiftyWeeksBelowTenToTwenty):
+        self.__mMoverFiftyWeeksBelowTenToTwenty  = moverFiftyWeeksBelowTenToTwenty 
+
+    def set_mover_fifty_weeks_below_twenty_to_thirty(self, moverFiftyWeeksBelowTwentyThirty):
+        self.__mMoverFiftyWeeksBelowTwentyThirty  = moverFiftyWeeksBelowTwentyThirty 
+
+    def set_mover_fifty_weeks_below_thirty_to_fourty(self, moverFiftyWeeksBelowThirtyFourty):
+        self.__mMoverFiftyWeeksBelowThirtyFourty  = moverFiftyWeeksBelowThirtyFourty 
+#endregion
+
+#region Public Methods
+    def to_dict(self):
+        return {"mMaxPrice": self.__mMaxPrice, "mMinPrice" : self.__mMinPrice, 
+                "mMaxVolume": self.__mMaxVolume, "mMinVolume" : self.__mMinVolume, 
+
+                "mMaxPriceMover" : self.__mMaxPriceMover, "mMinPriceMover" : self.__mMinPriceMover,
+                "mMaxVolumeMover" : self.__mMaxVolumeMover, "mMinVolumeMover"  : self.__mMinVolumeMover,
+
+                "mValueMaxMover": self.__mValueMaxMover, "mValueMinMover": self.__mValueMinMover,
+
+                "mMoverAboveZero" : self.__mMoverAboveZero, "mMoverAboveFifty" : self.__mMoverAboveFifty, "mMoverAboveHundred" : self.__mMoverAboveHundred,
+                "mMoverBelowZero" : self.__mMoverBelowZero, "mMoverBelowFifty" : self.__mMoverBelowFifty,
+
+                "mMoverAboveZeroToTen": self.__mMoverAboveZeroToTen, "mMoverAboveTenToTwenty": self.__mMoverAboveTenToTwenty, 
+                "mMoverAboveTwentyToThirty" : self.__mMoverAboveTwentyToThirty, "mMoverAboveThirtyToFourty": self.__mMoverAboveThirtyToFourty,  
+
+                "mMoverBelowZeroToTen" : self.__mMoverBelowZeroToTen, "mMoverBelowTenToTwenty": self.__mMoverBelowTenToTwenty, 
+                "mMoverBelowTwentyToThirty" : self.__mMoverBelowTwentyToThirty, "mMoverBelowThirtyToFourty": self.__mMoverBelowThirtyToFourty,
+
+                "mFiftyValueMaxMover": self.__mFiftyValueMaxMover, "mFiftyValueMinMover": self.__mFiftyValueMinMover,
+
+                "mMoverFiftyWeeksAboveZero": self.__mMoverFiftyWeeksAboveZero, "mMoverFiftyWeeksAboveFifty": self.__mMoverFiftyWeeksAboveFifty, "mMoverFiftyWeeksAboveHundred": self.__mMoverFiftyWeeksAboveHundred,
+                "mMoverFiftyWeeksBelowZero": self.__mMoverFiftyWeeksBelowZero, "mMoverFiftyWeeksBelowFifty": self.__mMoverFiftyWeeksBelowFifty,
+
+                "mMoverFiftyWeeksAboveZeroToTen": self.__mMoverFiftyWeeksAboveZeroToTen, "mMoverFiftyWeeksAboveTenToTwenty": self.__mMoverFiftyWeeksAboveTenToTwenty,
+                "mMoverFiftyWeeksAboveTwentyThirty": self.__mMoverFiftyWeeksAboveTwentyThirty, "mMoverFiftyWeeksAboveThirtyFourty": self.__mMoverFiftyWeeksAboveThirtyFourty,
+
+                "mMoverFiftyWeeksBelowZeroToTen": self.__mMoverFiftyWeeksBelowZeroToTen, "mMoverFiftyWeeksBelowTenToTwenty": self.__mMoverFiftyWeeksBelowTenToTwenty,
+                "mMoverFiftyWeeksBelowTwentyThirty": self.__mMoverFiftyWeeksBelowTwentyThirty, "mMoverFiftyWeeksBelowThirtyFourty": self.__mMoverFiftyWeeksBelowThirtyFourty
+        }
+
+    def from_json(self, json):
+        self.set_min_price(json["mMinPrice"])
+        self.set_max_price(json["mMaxPrice"])
+        self.set_min_volume(json["mMinVolume"])
+        self.set_max_volume(json["mMaxVolume"])
+        self.set_max_price_mover(json["mMaxPriceMover"])
+        self.set_min_price_mover(json["mMinPriceMover"])
+        self.set_max_volume_mover(json["mMaxVolumeMover"])
+        self.set_min_volume_mover(json["mMinVolumeMover"])
+        self.set_value_max_mover(json["mValueMaxMover"])
+        self.set_value_min_mover(json["mValueMinMover"])
+        self.set_mover_above_zero(json["mMoverAboveZero"])
+        self.set_mover_above_fifty(json["mMoverAboveFifty"])
+        self.set_mover_above_hundred(json["mMoverAboveHundred"])
+        self.set_mover_below_zero(json["mMoverBelowZero"])
+        self.set_mover_below_fifty(json["mMoverBelowFifty"])
+        self.set_mover_above_zero_to_ten(json["mMoverAboveZeroToTen"])
+        self.set_mover_above_ten_to_twenty(json["mMoverAboveTenToTwenty"])
+        self.set_mover_above_twenty_to_thirty(json["mMoverAboveTwentyToThirty"])
+        self.set_mover_above_thirty_to_fourty(json["mMoverAboveThirtyToFourty"])
+        self.set_mover_below_zero_to_ten(json["mMoverBelowZeroToTen"])
+        self.set_mover_below_ten_to_twenty(json["mMoverBelowTenToTwenty"])
+        self.set_mover_below_twenty_to_thirty(json["mMoverBelowTwentyToThirty"])
+        self.set_mover_below_thirty_to_fourty(json["mMoverBelowThirtyToFourty"])
+        self.set_fifty_value_max_mover(json["mFiftyValueMaxMover"])
+        self.set_fifty_value_min_mover(json["mFiftyValueMinMover"])
+        self.set_mover_fifty_weeks_above_zero(json["mMoverFiftyWeeksAboveZero"])
+        self.set_mover_fifty_weeks_above_fifty(json["mMoverFiftyWeeksAboveFifty"])
+        self.set_mover_fifty_weeks_above_hundred(json["mMoverFiftyWeeksAboveHundred"])
+        self.set_mover_fifty_weeks_below_zero(json["mMoverFiftyWeeksBelowZero"])
+        self.set_mover_fifty_weeks_below_fifty(json["mMoverFiftyWeeksBelowFifty"])
+        self.set_mover_fifty_weeks_above_zero_to_ten(json["mMoverFiftyWeeksAboveZeroToTen"])
+        self.set_mover_fifty_weeks_above_ten_to_twenty(json["mMoverFiftyWeeksAboveTenToTwenty"])
+        self.set_mover_fifty_weeks_above_twenty_to_thirty(json["mMoverFiftyWeeksAboveTwentyThirty"])
+        self.set_mover_fifty_weeks_above_thirty_to_fourty(json["mMoverFiftyWeeksAboveThirtyFourty"])
+        self.set_mover_fifty_weeks_below_zero_to_ten(json["mMoverFiftyWeeksBelowZeroToTen"])
+        self.set_mover_fifty_weeks_below_ten_to_twenty(json["mMoverFiftyWeeksBelowTenToTwenty"])
+        self.set_mover_fifty_weeks_below_twenty_to_thirty(json["mMoverFiftyWeeksBelowTwentyThirty"])
+        self.set_mover_fifty_weeks_below_thirty_to_fourty(json["mMoverFiftyWeeksBelowThirtyFourty"])
+#enderegion
+
+    # To String
+    def __str__(self):
+        return  "####################\n"\
+                f"#- __mMaxPrice: {self.__mMaxPrice}\n"\
+                f"#- __mMinPrice: {self.__mMinPrice}\n"\
+                f"#- __mMaxVolume: {self.__mMaxVolume}\n"\
+                f"#- __mMinVolume: {self.__mMinVolume}\n"\
+                f"#- __mMaxPriceMover: {self.__mMaxPriceMover}\n"\
+                f"#- __mMinPriceMover: {self.__mMinPriceMover}\n"\
+                f"#- __mMaxVolumeMover: {self.__mMaxVolumeMover}\n"\
+                f"#- __mMinVolumeMover: {self.__mMinVolumeMover}\n"\
+                f"#- __mValueMaxMover: {self.__mValueMaxMover}\n"\
+                f"#- __mValueMinMover: {self.__mValueMinMover}\n"\
+                f"#- __mMoverAboveZero: {self.__mMoverAboveZero}\n"\
+                f"#- __mMoverAboveFifty: {self.__mMoverAboveFifty}\n"\
+                f"#- __mMoverAboveHundred: {self.__mMoverAboveHundred}\n"\
+                f"#- __mMoverBelowZero: {self.__mMoverBelowZero}\n"\
+                f"#- __mMoverBelowFifty: {self.__mMoverBelowFifty}\n"\
+                f"#- __mMoverAboveZeroToTen: {self.__mMoverAboveZeroToTen}\n"\
+                f"#- __mMoverAboveTenToTwenty: {self.__mMoverAboveTenToTwenty}\n"\
+                f"#- __mMoverAboveTwentyToThirty: {self.__mMoverAboveTwentyToThirty}\n"\
+                f"#- __mMoverAboveThirtyToFourty: {self.__mMoverAboveThirtyToFourty}\n"\
+                f"#- __mMoverBelowZeroToTen: {self.__mMoverBelowZeroToTen}\n"\
+                f"#- __mMoverBelowTenToTwenty: {self.__mMoverBelowTenToTwenty}\n"\
+                f"#- __mMoverBelowTwentyToThirty: {self.__mMoverBelowTwentyToThirty}\n"\
+                f"#- __mMoverBelowThirtyToFourty: {self.__mMoverBelowThirtyToFourty}\n"\
+                f"#- __mFiftyValueMaxMover: {self.__mFiftyValueMaxMover}\n"\
+                f"#- __mFiftyValueMinMover: {self.__mFiftyValueMinMover}\n"\
+                f"#- __mMoverFiftyWeeksAboveZero: {self.__mMoverFiftyWeeksAboveZero}\n"\
+                f"#- __mMoverFiftyWeeksAboveFifty: {self.__mMoverFiftyWeeksAboveFifty}\n"\
+                f"#- __mMoverFiftyWeeksAboveHundred: {self.__mMoverFiftyWeeksAboveHundred}\n"\
+                f"#- __mMoverFiftyWeeksBelowZero: {self.__mMoverFiftyWeeksBelowZero}\n"\
+                f"#- __mMoverFiftyWeeksBelowFifty: {self.__mMoverFiftyWeeksBelowFifty}\n"\
+                f"#- __mMoverFiftyWeeksAboveZeroToTen: {self.__mMoverFiftyWeeksAboveZeroToTen}\n"\
+                f"#- __mMoverFiftyWeeksAboveTenToTwenty: {self.__mMoverFiftyWeeksAboveTenToTwenty}\n"\
+                f"#- __mMoverFiftyWeeksAboveTwentyThirty: {self.__mMoverFiftyWeeksAboveTwentyThirty}\n"\
+                f"#- __mMoverFiftyWeeksAboveThirtyFourty: {self.__mMoverFiftyWeeksAboveThirtyFourty}\n"\
+                f"#- __mMoverFiftyWeeksBelowZeroToTen: {self.__mMoverFiftyWeeksBelowZeroToTen}\n"\
+                f"#- __mMoverFiftyWeeksBelowTenToTwenty: {self.__mMoverFiftyWeeksBelowTenToTwenty}\n"\
+                f"#- __mMoverFiftyWeeksBelowTwentyThirty: {self.__mMoverFiftyWeeksBelowTwentyThirty}\n"\
+                f"#- __mMoverFiftyWeeksBelowThirtyFourty: {self.__mMoverFiftyWeeksBelowThirtyFourty}\n"\
+                "####################\n"
 
 class FilterSearchStockPanel(object):
 
@@ -1814,6 +2538,7 @@ class KeyboardEventUtils(object):
 class StockView(object):
     
     __mStock : Stock = None
+    __mCrypto : Cryptocurrency = None
     __mQuarterlyMarketCap = None
     __mTrailingMarketCap = None
     __mQuarterlyEnterpriseValue = None
@@ -1841,6 +2566,9 @@ class StockView(object):
 #region - Get Methods
     def get_stock(self):
         return self.__mStock
+
+    def get_crypto(self):
+        return self.__mCrypto
 
     def get_quarterly_market_cap(self):
         return self.__mQuarterlyMarketCap
@@ -1921,6 +2649,9 @@ class StockView(object):
 #region - Set Methods
     def set_stock(self, stock):
         self.__mStock = stock
+
+    def set_crypto(self, crypto):
+        self.__mCrypto = crypto
 
     def set_quarterly_market_cap(self, stockQuarterlyMarketCap):
         self.__mStock__mQuarterlyMarketCap = stockQuarterlyMarketCap
@@ -2004,6 +2735,7 @@ class StockView(object):
         return  "####################\n"\
                 f"# {StockView.__name__}\n"\
                 f"#- __mStock: {str(self.__mStock)}\n"\
+                f"#- __mCrypto: {str(self.__mCrypto)}\n"\
                 f"#- __mQuarterlyMarketCap:\t\t\t\t\t\t{yaml.dump(self.get_quarterly_market_cap())}\n"\
                 f"#- __mTrailingMarketCap:\t\t{yaml.dump(self.get_trailing_market_cap())}\n"\
                 f"#- __mQuarterlyEnterpriseValue:\t\t{yaml.dump(self.get_quarterly_enterprise_value())}\n"\
@@ -2077,6 +2809,17 @@ class TextUtils(object):
             return str(round(value / MILLION, 2)) + " m."
         else:
             return str(round(value / THOUSAND, 2)) + " k."
+
+    def convert_number_with_commas_form(value):
+        ret = ""
+        val = str(value)[::-1]
+        for i in range(0, len(val)):
+            c = val[i]
+            if i != 0 and i % 3 == 0:
+                ret += ","
+            ret += c
+        return ret[::-1]
+
 
 class WxUtils(object):
 
@@ -2153,6 +2896,7 @@ class API(object):
     URL_API_YAHOO_FINANCE_QUOTE = "https://query2.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&corsDomain=finance.yahoo.com&symbols={symbols}&crumb={crumb}"
     URL_API_YAHOO_FINANCE_GET_QUOTE_SUMMARY = "https://query2.finance.yahoo.com/v10/finance/quoteSummary/{symbol}?crumb={crumb}&modules={modules}"
     URL_API_YAHOO_OPTIONS = "https://query2.finance.yahoo.com/v7/finance/options/{symbol}?crumb={crumb}"
+    URL_API_YAHOO_FINANCE_SCREENER_CRYPTOCURRENCIES = "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved?count=250&formatted=true&scrIds=ALL_CRYPTOCURRENCIES_US&sortField=intradaymarketcap&sortType=DESC&start={start}&useRecordsResponse=false&fields=ticker%2ClogoUrl%2Csymbol%2ClongName%2Csparkline%2CshortName%2CregularMarketPrice%2CregularMarketChange%2CregularMarketChangePercent%2CmarketCap%2CregularMarketVolume%2Cvolume24Hr%2CvolumeAllCurrencies%2CcirculatingSupply%2CfiftyTwoWeekChangePercent%2CfiftyTwoWeekRange&lang=en-US&region=US"
 #endregion
 
 class Networking(object):
@@ -2201,18 +2945,23 @@ class Networking(object):
         session = HTMLSession()
         r = session.get(API.URL_API_YAHOO_FINANCE_GET_CHART.format(symbol = symbol, range = rangee, interval = interval), headers = headers)
         return r.content.decode("utf-8")
+
+    def download_cryptocurrencies(start, headers):
+        session = HTMLSession()
+        r = session.get(API.URL_API_YAHOO_FINANCE_SCREENER_CRYPTOCURRENCIES.format(start = str(start)), headers = headers)
+        return r.content.decode("utf-8")
 #endregion
 
 class DataSynchronization(object):
 
 #region - Public Methods
-    def sync_all_stocks_and_symbols():
+    def sync_all_stocks_and_symbols(pd):
         stocks = []            
         try:
             symbols = DataSynchronization.__sync_get_all_stocks_symbols()
             cookie = DataSynchronization.__get_cookie_yahoo_finance_fake_request()
             crumb = DataSynchronization.__get_crumb_yahoo_finance(cookie)
-            stocks = DataSynchronization.__sync_initial_all_stocks_data(symbols, crumb)
+            stocks = DataSynchronization.__sync_initial_all_stocks_data(symbols, crumb, pd)
         except:
             return stocks
         return stocks
@@ -2229,18 +2978,29 @@ class DataSynchronization(object):
         stockView.set_stock(stock)
         return stockView
 
+    def sync_single_crypto_full_data(crypto):
+        stockView = StockView()
+        DataSynchronization.__sync_chart(crypto.get_sign(), APIConstants.VALUE_1D, APIConstants.VALUE_1M, stockView)
+
+        # cookie = DataSynchronization.__get_cookie_yahoo_finance_fake_request()
+        # crumb = DataSynchronization.__get_crumb_yahoo_finance(cookie)
+
+        stockView.set_crypto(crypto)
+        return stockView
+
     def sync_update_all_stocks(stocks):
-        ss = DataSynchronization.__update_all_stocks_data(stocks)
-        data = []
-        for s in ss:
-            if s is not None:
-                data.append(s)
-        return data
+        return DataSynchronization.__update_all_stocks_data(stocks)
+
+    def sync_update_all_cryptos(cryptos):
+        return DataSynchronization.__update_all_cryptos_data(cryptos)
 
     def sync_get_chart(symbol, rnge, interval):
         stockView = StockView()
         DataSynchronization.__sync_chart(symbol, rnge, interval, stockView)
         return stockView
+
+    def sync_all_crypto(pd):
+        return DataSynchronization.__sync_get_all_cryptos(pd)
 #endregion
 
 #region - Private Methods
@@ -2265,11 +3025,15 @@ class DataSynchronization(object):
         return symbols
 
         
-    def __sync_initial_all_stocks_data(symbols, crumb):
+    def __sync_initial_all_stocks_data(symbols, crumb, pd):
         arrStocks = []
 
         for i in range(0, len(symbols), 500):
             DataSynchronization.__sync_initial_stocks_data(crumb, symbols[i:i+500], arrStocks)
+            if round(i * 100 / len(symbols), 2) > 99 and round(i * 100 / len(symbols)) < 100:
+                pd.Update(99)
+            else:
+                pd.Update(round(i * 100 / len(symbols)))
 
         
         if len(symbols) % 500 != 0:
@@ -2472,7 +3236,7 @@ class DataSynchronization(object):
                             try:
                                 stock.set_enterprise_value(jj[attr][len(jj[attr]) - 1][APIConstants.FIELD_REPORTED_VALUE][APIConstants.FIELD_RAW])
                             except:
-                                print("Json Exception")
+                                Environment().get_logger().error(DataSynchronization.__name__ + " - " + Strings.STR_ERROR_JSON)
 
                         case APIConstants.FIELD_QUARTERLY_PE_RATIO:
                             stockView.set_quarterly_pe_ratio(DataSynchronization.__init_and_elaborate_value_dictionary_single_stock_full_data(jj[attr]))
@@ -2482,7 +3246,7 @@ class DataSynchronization(object):
                             try:
                                 stock.set_pe_ratio(jj[attr][len(jj[attr]) - 1][APIConstants.FIELD_REPORTED_VALUE][APIConstants.FIELD_RAW])
                             except:
-                                print("Json Exception")
+                                Environment().get_logger().error(DataSynchronization.__name__ + " - " + Strings.STR_ERROR_JSON)
 
                         case APIConstants.FIELD_QUARTERLY_FORWARD_PE_RATIO:
                             stockView.set_quarterly_forward_pe_ratio(DataSynchronization.__init_and_elaborate_value_dictionary_single_stock_full_data(jj[attr]))
@@ -2498,7 +3262,7 @@ class DataSynchronization(object):
                             try:
                                 stock.set_peg_ratio(jj[attr][len(jj[attr]) - 1][APIConstants.FIELD_REPORTED_VALUE][APIConstants.FIELD_RAW])
                             except:
-                                print("Json Exception")
+                                Environment().get_logger().error(DataSynchronization.__name__ + " - " + Strings.STR_ERROR_JSON)
 
                         case APIConstants.FIELD_QUARTERLY_PS_RATIO:
                             stockView.set_quarterly_ps_ratio(DataSynchronization.__init_and_elaborate_value_dictionary_single_stock_full_data(jj[attr]))
@@ -2514,7 +3278,7 @@ class DataSynchronization(object):
                             try:
                                 stock.set_pb_ratio(jj[attr][len(jj[attr]) - 1][APIConstants.FIELD_REPORTED_VALUE][APIConstants.FIELD_RAW])
                             except:
-                                print("Json Exception")
+                                Environment().get_logger().error(DataSynchronization.__name__ + " - " + Strings.STR_ERROR_JSON)
 
                         case APIConstants.FIELD_QUARTERLY_ENTERPRISES_VALUE_REVENUE_RATIO:
                             stockView.set_quarterly_enterprises_value_revenue_ratio(DataSynchronization.__init_and_elaborate_value_dictionary_single_stock_full_data(jj[attr]))
@@ -2524,7 +3288,7 @@ class DataSynchronization(object):
                             try:
                                 stock.set_enterprises_value_revenue_ratio(jj[attr][len(jj[attr]) - 1][APIConstants.FIELD_REPORTED_VALUE][APIConstants.FIELD_RAW])
                             except:
-                                print("Json Exception")
+                                Environment().get_logger().error(DataSynchronization.__name__ + " - " + Strings.STR_ERROR_JSON)
 
                         case APIConstants.FIELD_QUARTERLY_ENTERPRISES_VALUE_EBITDA_RATIO:
                             stockView.set_quarterly_enterprises_value_ebitda_ratio(DataSynchronization.__init_and_elaborate_value_dictionary_single_stock_full_data(jj[attr]))
@@ -2534,7 +3298,7 @@ class DataSynchronization(object):
                             try:
                                 stock.set_enterprises_value_ebitda_ratio(jj[attr][len(jj[attr]) - 1][APIConstants.FIELD_REPORTED_VALUE][APIConstants.FIELD_RAW])
                             except:
-                                print("Json Exception")
+                                Environment().get_logger().error(DataSynchronization.__name__ + " - " + Strings.STR_ERROR_JSON)
 
     def __sync_chart(symbol, rnge, interval, stockView):
         jj = json.loads(Networking.download_chart(symbol, rnge, interval, APIConstants.HEADERS_ONE))
@@ -2698,7 +3462,7 @@ class DataSynchronization(object):
         for i in range(0, len(stocks), 500):
             DataSynchronization.__update_stock_data(crumb, stocks[i:i+500])
 
-        if len(stocks) % 500 != 0:
+        if len(stocks) > 500 and len(stocks) % 500 != 0:
             DataSynchronization.__update_stock_data(crumb, stocks[-(len(stocks) % 500):])
 
         return stocks
@@ -2834,6 +3598,185 @@ class DataSynchronization(object):
 
                 if APIConstants.FIELD_DIVIDEND_RATE in j:
                     stock.set_dividend_rate(j[APIConstants.FIELD_DIVIDEND_RATE])
+
+#endregion
+
+#region - Update Cryptos Methods
+    def __sync_get_all_cryptos(pd):
+        cryptos = []
+        total = 250
+        start = 0
+        while True:
+            jj = json.loads(Networking.download_cryptocurrencies(start, APIConstants.HEADERS_ONE))
+            if jj is not None:
+                total = int(jj[APIConstants.FIELD_FINANCE][APIConstants.FIELD_RESULT][0][APIConstants.FIELD_TOTAL])
+                
+                if start < total:
+                    if round(start * 100 / total, 2) > 99 and round(start * 100 / total, 2) < 100:
+                        pd.Update(99)
+                    else:
+                        pd.Update(round(start * 100 / total))
+                
+                for i in range(0, len(jj[APIConstants.FIELD_FINANCE][APIConstants.FIELD_RESULT][0][APIConstants.FIELD_QUOTES])):
+                    j = jj[APIConstants.FIELD_FINANCE][APIConstants.FIELD_RESULT][0][APIConstants.FIELD_QUOTES][i]
+                    
+                    crypto = Cryptocurrency(uuid.uuid4())
+                    exchange = Exchange(uuid.uuid4())
+
+                    exchange.set_full_name(j[APIConstants.FIELD_FULL_EXCHANGE_NAME])
+                    crypto.set_exchange(exchange)
+                    crypto.set_sign(j[APIConstants.FIELD_SYMBOL])
+
+                    if APIConstants.FIELD_COIN_IMAGE_URL in j:
+                        crypto.set_image_url(j[APIConstants.FIELD_COIN_IMAGE_URL])
+
+                    if APIConstants.FIELD_REGULAR_MARKET_CHANGE_PERCENT in j:
+                        crypto.set_market_change_percent(j[APIConstants.FIELD_REGULAR_MARKET_CHANGE_PERCENT][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_FIFTY_TWO_WEEK_LOW_CHANGE_PERCENT in j:
+                        crypto.set_fifty_two_week_low_change_percent(j[APIConstants.FIELD_FIFTY_TWO_WEEK_LOW_CHANGE_PERCENT][APIConstants.FIELD_FMT])
+
+                    if APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH_CHANGE_PERCENT in j:
+                        crypto.set_fifty_two_week_high_change_percent(j[APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH_CHANGE_PERCENT][APIConstants.FIELD_FMT])
+
+                    if APIConstants.FIELD_FIFTY_TWO_WEEK_LOW_CHANGE in j:
+                        crypto.set_fifty_two_week_low_change(j[APIConstants.FIELD_FIFTY_TWO_WEEK_LOW_CHANGE][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH_CHANGE in j:
+                        crypto.set_fifty_two_week_high_change(j[APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH_CHANGE][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_FIFTY_TWO_WEEK_LOW in j:
+                        crypto.set_fifty_two_weeks_low(j[APIConstants.FIELD_FIFTY_TWO_WEEK_LOW][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH in j:
+                        crypto.set_fifty_two_weeks_high(j[APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_FIFTY_TWO_WEEK_CHANGE_PERCENT in j:
+                        crypto.set_fifty_two_weeks_perc_change(j[APIConstants.FIELD_FIFTY_TWO_WEEK_CHANGE_PERCENT][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_CIRCULATING_SUPPLY in j:
+                        crypto.set_circulating_supply(j[APIConstants.FIELD_CIRCULATING_SUPPLY][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_REGULAR_MARKET_DAY_RANGE in j:
+                        crypto.set_regular_market_day_range(j[APIConstants.FIELD_REGULAR_MARKET_DAY_RANGE][APIConstants.FIELD_FMT])
+
+                    if APIConstants.FIELD_REGULAR_MARKET_PRICE in j:
+                        crypto.set_price(j[APIConstants.FIELD_REGULAR_MARKET_PRICE][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_REGULAR_MARKET_VOLUME in j:
+                        crypto.set_volume(j[APIConstants.FIELD_REGULAR_MARKET_VOLUME][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_VOLUME_24H in j:
+                        crypto.set_volume_twenty_four_hours(j[APIConstants.FIELD_VOLUME_24H][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_VOLUME_ALL_CURRENCIES in j:
+                        crypto.set_volume_all_currencies(j[APIConstants.FIELD_VOLUME_ALL_CURRENCIES][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_MARKET_CAP in j:
+                        crypto.set_market_cap(j[APIConstants.FIELD_MARKET_CAP][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_REGULAR_MARKET_DAY_HIGH in j:
+                        crypto.set_day_max(j[APIConstants.FIELD_REGULAR_MARKET_DAY_HIGH][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_REGULAR_MARKET_DAY_LOW in j:
+                        crypto.set_day_min(j[APIConstants.FIELD_REGULAR_MARKET_DAY_LOW][APIConstants.FIELD_RAW])
+
+                    if APIConstants.FIELD_LONG_NAME in j:
+                        crypto.set_name(j[APIConstants.FIELD_LONG_NAME])
+
+                    cryptos.append(crypto)
+
+            if start >= total:
+                break
+            elif start + 250 >= total:
+                start += total % 250
+            else:
+                start += 250
+
+        return cryptos
+
+    def __update_all_cryptos_data(cryptos):        
+        cookie = DataSynchronization.__get_cookie_yahoo_finance_fake_request()
+        crumb = DataSynchronization.__get_crumb_yahoo_finance(cookie)
+
+        for i in range(0, len(cryptos), 250):
+            DataSynchronization.__update_crypto_data(crumb, cryptos[i:i+500])
+
+        if len(cryptos) > 250 and len(cryptos) % 250 != 0:
+            DataSynchronization.__update_crypto_data(crumb, cryptos[-(len(cryptos) % 500):])
+
+        return cryptos
+
+    def __update_crypto_data(crumb, cryptos):
+        symbols = []
+        for s in cryptos:
+            if s is not None:
+                symbols.append(s.get_sign())
+
+        jj = json.loads(Networking.download_quote_of_stock(",".join(symbols), crumb, APIConstants.HEADERS_ONE))
+
+        if jj is not None:
+            for i in range(0, len(jj[APIConstants.FIELD_QUOTE_RESPONSE][APIConstants.FIELD_RESULT])):
+                crypto = cryptos[i]
+
+                j = jj[APIConstants.FIELD_QUOTE_RESPONSE][APIConstants.FIELD_RESULT][i]
+
+                if APIConstants.FIELD_COIN_IMAGE_URL in j:
+                    crypto.set_image_url(j[APIConstants.FIELD_COIN_IMAGE_URL])
+
+                if APIConstants.FIELD_REGULAR_MARKET_CHANGE_PERCENT in j:
+                    crypto.set_market_change_percent(j[APIConstants.FIELD_REGULAR_MARKET_CHANGE_PERCENT])
+
+                if APIConstants.FIELD_FIFTY_TWO_WEEK_LOW_CHANGE_PERCENT in j:
+                    crypto.set_fifty_two_week_low_change_percent(j[APIConstants.FIELD_FIFTY_TWO_WEEK_LOW_CHANGE_PERCENT])
+
+                if APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH_CHANGE_PERCENT in j:
+                    crypto.set_fifty_two_week_high_change_percent(j[APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH_CHANGE_PERCENT])
+
+                if APIConstants.FIELD_FIFTY_TWO_WEEK_LOW_CHANGE in j:
+                    crypto.set_fifty_two_week_low_change(j[APIConstants.FIELD_FIFTY_TWO_WEEK_LOW_CHANGE])
+
+                if APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH_CHANGE in j:
+                    crypto.set_fifty_two_week_high_change(j[APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH_CHANGE])
+
+                if APIConstants.FIELD_FIFTY_TWO_WEEK_LOW in j:
+                    crypto.set_fifty_two_weeks_low(j[APIConstants.FIELD_FIFTY_TWO_WEEK_LOW])
+
+                if APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH in j:
+                    crypto.set_fifty_two_weeks_high(j[APIConstants.FIELD_FIFTY_TWO_WEEK_HIGH])
+
+                if APIConstants.FIELD_FIFTY_TWO_WEEK_CHANGE_PERCENT in j:
+                    crypto.set_fifty_two_weeks_perc_change(j[APIConstants.FIELD_FIFTY_TWO_WEEK_CHANGE_PERCENT])
+
+                if APIConstants.FIELD_CIRCULATING_SUPPLY in j:
+                    crypto.set_circulating_supply(j[APIConstants.FIELD_CIRCULATING_SUPPLY])
+
+                if APIConstants.FIELD_REGULAR_MARKET_DAY_RANGE in j:
+                    crypto.set_regular_market_day_range(j[APIConstants.FIELD_REGULAR_MARKET_DAY_RANGE])
+
+                if APIConstants.FIELD_REGULAR_MARKET_PRICE in j:
+                    crypto.set_price(j[APIConstants.FIELD_REGULAR_MARKET_PRICE])
+
+                if APIConstants.FIELD_REGULAR_MARKET_VOLUME in j:
+                    crypto.set_volume(j[APIConstants.FIELD_REGULAR_MARKET_VOLUME])
+
+                if APIConstants.FIELD_VOLUME_24H in j:
+                    crypto.set_volume_twenty_four_hours(j[APIConstants.FIELD_VOLUME_24H])
+
+                if APIConstants.FIELD_VOLUME_ALL_CURRENCIES in j:
+                    crypto.set_volume_all_currencies(j[APIConstants.FIELD_VOLUME_ALL_CURRENCIES])
+
+                if APIConstants.FIELD_MARKET_CAP in j:
+                    crypto.set_market_cap(j[APIConstants.FIELD_MARKET_CAP])
+
+                if APIConstants.FIELD_REGULAR_MARKET_DAY_HIGH in j:
+                    crypto.set_day_max(j[APIConstants.FIELD_REGULAR_MARKET_DAY_HIGH])
+
+                if APIConstants.FIELD_REGULAR_MARKET_DAY_LOW in j:
+                    crypto.set_day_min(j[APIConstants.FIELD_REGULAR_MARKET_DAY_LOW])
+
+                if APIConstants.FIELD_LONG_NAME in j:
+                    crypto.set_name(j[APIConstants.FIELD_LONG_NAME])
 #endregion
 #endregion
 
@@ -2848,6 +3791,363 @@ class StoppableThread(threading.Thread):
 
     def stopped(self):
         return self._stop_event.is_set()
+
+class CryptosViewList(wx.ListCtrl):
+
+    LIST_COLUMNS = ["%", "Symbol", "Price"]
+    LIST_COLUMNS_SIZES = [75, 250, 100]
+
+    __mCallback = None
+    __mFilterData = None
+    __mFilterName = None
+    __mItems: [Cryptocurrency] = None
+    __mFilteredItems: [Cryptocurrency] = None
+
+    def __init__(self, parent, id, style, width, callback):
+        wx.ListCtrl.__init__(self, parent, id, style=style)
+        self.__mCallback = callback
+        self.__mWidth = width
+        self.__mItems = []
+
+#region - Get Methods
+    def get_items(self):
+        return self.__mItems
+
+    def set_items(self, items):
+        self.__mItems = items
+
+    def get_filtered_items(self):
+        return self.__mFilteredItems
+
+    def add_item(self, item):
+        self.__mItems.append(item)
+#endregion
+
+#region - Set Methods
+    def set_filter_data(self, filter):
+        self.__mFilterData = filter
+#enderegion
+
+#region - Public Methods
+    def init_layout(self):
+        for i in range(0, len(self.LIST_COLUMNS_SIZES)):
+            self.InsertColumn(i, self.LIST_COLUMNS[i])
+            self.SetColumnWidth(i, self.LIST_COLUMNS_SIZES[i])
+
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.on_item_selected)
+
+    def get_item_position(self, item):
+        for i in range(0, len(self.__mFilteredItems)):
+            item = self.__mFilteredItems[i]
+            if item.get_id() == item.get_id():
+                return i
+        return -1
+
+    def get_filtered_item_position(self, item):
+        for i in range(0, len(self.__mFilteredItems)):
+            item = self.__mFilteredItems[i]
+            if item.get_id() == item.get_id():
+                return i
+        return -1
+
+    def add_items_and_populate(self, items):
+        self.__mItems = items
+        self.__mFilteredItems = items
+        self.filter_items()
+        self.populate_list()
+
+    def add_specific_filtered_items(self, items, start, end):
+        j = 0
+        for i in range(start, end):
+            self.__mFilteredItems[i] = items[j]
+            item = self.__mFilteredItems[i]
+            j += 1
+            if j >= len(items):
+                break
+
+    def populate_list(self):
+        self.DeleteAllItems()
+        if self.__mFilteredItems:
+            for i in range(0, len(self.__mFilteredItems)):
+                item = self.__mFilteredItems[i]
+                if item.get_market_change_percent() is not None and float(item.get_market_change_percent()) > 0:
+                    self.InsertItem(i, "+" + str(round(float(item.get_market_change_percent()), 2)))
+                else:
+                    if item.get_market_change_percent() is not None:
+                        self.InsertItem(i, str(round(float(item.get_market_change_percent()), 2)))
+                    else:
+                        self.InsertItem(i, str(0))  
+                self.SetItem(i, 1, str(item.get_sign()))
+                self.SetItem(i, 2, str(item.get_price()))
+
+    def on_item_selected(self, event):
+        if self.__mCallback is not None:
+            self.__mCurrentItem = self.__mFilteredItems[event.Index]
+            self.__mCallback(self.__mCurrentItem)
+
+    def filter_items_by_name(self, ffilter):
+        self.__mFilterName = ffilter
+        self.filter_items()
+
+    def filter_items(self):
+        for item in self.__mItems:
+            if item.get_market_change_percent() is None:
+                item.set_market_change_percent(0)
+            if item.get_volume() is None:
+                item.set_volume(0) 
+        self.filter_name()
+        if self.__mFilterData is not None:
+            self.filter_values()
+            self.filter_order()
+        self.populate_list()
+
+    def filter_name(self):
+        if self.__mFilterName:
+            self.__mFilteredItems = []
+            for item in self.__mItems:
+                if self.__mFilterName.lower() in item.get_sign().lower():
+                    self.__mFilteredItems.append(item)
+        else:
+            self.__mFilteredItems = self.__mItems
+
+    def filter_order(self):
+        if self.__mFilterData.get_max_price_mover():
+            pos = -1
+            for i in range(0, len(self.__mFilteredItems)):
+                one = self.__mFilteredItems[i]
+                for j in range(i + 1, len(self.__mFilteredItems)):
+                    two = self.__mFilteredItems[j]
+                    if one.get_market_change_percent() < two.get_market_change_percent():
+                        one = two
+                        pos = j
+                temp = self.__mFilteredItems[i]
+                self.__mFilteredItems[i] = one
+                self.__mFilteredItems[pos] = temp
+
+        if self.__mFilterData.get_min_price_mover():
+            pos = -1
+            for i in range(0, len(self.__mFilteredItems)):
+                one = self.__mFilteredItems[i]
+                for j in range(i + 1, len(self.__mFilteredItems)):
+                    two = self.__mFilteredItems[j]
+                    if one.get_market_change_percent() > two.get_market_change_percent():
+                        one = two
+                        pos = j
+                temp = self.__mFilteredItems[i]
+                self.__mFilteredItems[i] = one
+                self.__mFilteredItems[pos] = temp
+
+        if self.__mFilterData.get_max_volume_mover():
+            pos = -1
+            for i in range(0, len(self.__mFilteredItems)):
+                one = self.__mFilteredItems[i]
+                for j in range(i + 1, len(self.__mFilteredItems)):
+                    two = self.__mFilteredItems[j]
+                    if one.get_volume() < two.get_volume():
+                        one = two
+                        pos = j
+                temp = self.__mFilteredItems[i]
+                self.__mFilteredItems[i] = one
+                self.__mFilteredItems[pos] = temp
+
+        if self.__mFilterData.get_min_volume_mover():
+            pos = -1
+            for i in range(0, len(self.__mFilteredItems)):
+                one = self.__mFilteredItems[i]
+                for j in range(i + 1, len(self.__mFilteredItems)):
+                    two = self.__mFilteredItems[j]
+                    if one.get_volume() > two.get_volume():
+                        one = two
+                        pos = j
+                temp = self.__mFilteredItems[i]
+                self.__mFilteredItems[i] = one
+                self.__mFilteredItems[pos] = temp
+
+    def filter_values(self):
+        if self.__mFilterData is not None:
+            items = []
+            for item in self.__mFilteredItems:
+
+                if self.__mFilterData.get_max_price() is not None and self.__mFilterData.get_max_price() and self.__mFilterData.get_min_price() is not None and self.__mFilterData.get_min_price():
+                    if item.get_price() >= float(self.__mFilterData.get_min_price()) and item.get_price() <= float(self.__mFilterData.get_max_price()):
+                        items.append(item)
+                elif self.__mFilterData.get_min_price() is not None and self.__mFilterData.get_min_price():
+                    if item.get_price() >= float(self.__mFilterData.get_min_price()):
+                        items.append(item)
+                elif self.__mFilterData.get_max_price() is not None and self.__mFilterData.get_max_price():
+                    if item.get_price() <= float(self.__mFilterData.get_max_price()):
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_min_volume() is not None and self.__mFilterData.get_min_volume() and self.__mFilterData.get_max_volume() is not None and self.__mFilterData.get_max_volume():
+                    if item.get_volume() >= float(self.__mFilterData.get_min_volume()) and item.get_volume() <= float(self.__mFilterData.get_max_volume()):
+                        items.append(item)
+                elif self.__mFilterData.get_min_volume() is not None and self.__mFilterData.get_min_volume():
+                    if item.get_volume() >= float(self.__mFilterData.get_min_volume()):
+                        items.append(item)
+                elif self.__mFilterData.get_max_volume() is not None and self.__mFilterData.get_max_volume():
+                    if item.get_volume() <= float(self.__mFilterData.get_max_volume()):
+                        items.append(item)
+
+                if self.__mFilterData.get_value_max_mover() is not None and self.__mFilterData.get_value_max_mover() and self.__mFilterData.get_value_min_mover() is not None and self.__mFilterData.get_value_min_mover():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= float(self.__mFilterData.get_value_max_mover()) and float(item.get_market_change_percent()) >= float(self.__mFilterData.get_value_min_mover()):
+                        items.append(item)
+                elif self.__mFilterData.get_value_min_mover() is not None and self.__mFilterData.get_value_min_mover():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= float(self.__mFilterData.get_value_min_mover()):
+                        items.append(item)
+                elif self.__mFilterData.get_value_max_mover() is not None and self.__mFilterData.get_value_max_mover():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= float(self.__mFilterData.get_value_max_mover()):
+                        items.append(item)
+
+
+                if self.__mFilterData.get_mover_above_zero() is not None and self.__mFilterData.get_mover_above_zero():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 0:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_above_fifty() is not None and self.__mFilterData.get_mover_above_fifty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 50:
+                        items.append(item)
+
+                if self.__mFilterData.get_mover_above_hundred() is not None and self.__mFilterData.get_mover_above_hundred():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 100:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_zero() is not None and self.__mFilterData.get_mover_below_zero():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= 0:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_fifty() is not None and self.__mFilterData.get_mover_below_fifty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= -50:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_above_zero_to_ten() is not None and self.__mFilterData.get_mover_above_zero_to_ten():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 0 and float(item.get_market_change_percent()) <= 10:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_above_ten_to_twenty() is not None and self.__mFilterData.get_mover_above_ten_to_twenty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 10 and float(item.get_market_change_percent()) <= 20:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_above_twenty_to_thirty() is not None and self.__mFilterData.get_mover_above_twenty_to_thirty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 20 and float(item.get_market_change_percent()) <= 30:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_above_thirty_to_fourty() is not None and self.__mFilterData.get_mover_above_thirty_to_fourty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) >= 30 and float(item.get_market_change_percent()) <= 40:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_zero_to_ten() is not None and self.__mFilterData.get_mover_below_zero_to_ten():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= 0 and float(item.get_market_change_percent()) >= -10:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_ten_to_twenty() is not None and self.__mFilterData.get_mover_below_ten_to_twenty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= -10 and float(item.get_market_change_percent()) >= -20:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_twenty_to_thirty() is not None and self.__mFilterData.get_mover_below_twenty_to_thirty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= -20 and float(item.get_market_change_percent()) >= -30:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_below_thirty_to_fourty() is not None and self.__mFilterData.get_mover_below_thirty_to_fourty():
+                    if item.get_market_change_percent() and float(item.get_market_change_percent()) <= -30 and float(item.get_market_change_percent()) >= -40:
+                        items.append(item)
+
+                if self.__mFilterData.get_fifty_value_max_mover() is not None and self.__mFilterData.get_fifty_value_max_mover() and self.__mFilterData.get_fifty_value_min_mover() is not None and self.__mFilterData.get_fifty_value_min_mover():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) <= float(self.__mFilterData.get_fifty_value_max_mover()) and float(item.get_market_change_percent()) >= float(self.__mFilterData.get_fifty_value_min_mover()):
+                        items.append(item)
+                elif self.__mFilterData.get_fifty_value_max_mover() is not None and self.__mFilterData.get_fifty_value_max_mover():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) <= float(self.__mFilterData.get_fifty_value_max_mover()):
+                        items.append(item)
+                elif self.__mFilterData.get_fifty_value_min_mover() is not None and self.__mFilterData.get_fifty_value_min_mover():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) >= float(self.__mFilterData.get_fifty_value_min_mover()):
+                        items.append(item)
+
+                if self.__mFilterData.get_mover_fifty_weeks_above_zero() is not None and self.__mFilterData.get_mover_fifty_weeks_above_zero():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) >= 0:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_above_fifty() is not None and self.__mFilterData.get_mover_fifty_weeks_above_fifty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) >= 50:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_above_hundred() is not None and self.__mFilterData.get_mover_fifty_weeks_above_hundred():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) >= 100:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_below_zero() is not None and self.__mFilterData.get_mover_fifty_weeks_below_zero():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < 0:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_below_fifty() is not None and self.__mFilterData.get_mover_fifty_weeks_below_fifty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < 0:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_above_zero_to_ten() is not None and self.__mFilterData.get_mover_fifty_weeks_above_zero_to_ten():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) > 0 and float(item.get_fifty_two_weeks_perc_change()) <= 10:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_above_ten_to_twenty() is not None and self.__mFilterData.get_mover_fifty_weeks_above_ten_to_twenty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) > 10 and float(item.get_fifty_two_weeks_perc_change()) <= 20:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_above_twenty_to_thirty() is not None and self.__mFilterData.get_mover_fifty_weeks_above_twenty_to_thirty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) > 20 and float(item.get_fifty_two_weeks_perc_change()) <= 30:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_above_thirty_to_fourty() is not None and self.__mFilterData.get_mover_fifty_weeks_above_thirty_to_fourty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) > 30 and float(item.get_fifty_two_weeks_perc_change()) <= 40:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_below_zero_to_ten() is not None and self.__mFilterData.get_mover_fifty_weeks_below_zero_to_ten():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < 0 and float(item.get_fifty_two_weeks_perc_change()) > -10:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_below_ten_to_twenty() is not None and self.__mFilterData.get_mover_fifty_weeks_below_ten_to_twenty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < -10 and float(item.get_fifty_two_weeks_perc_change()) > -20:
+                        items.append(item)
+                        
+                
+                if self.__mFilterData.get_mover_fifty_weeks_below_twenty_to_thirty() is not None and self.__mFilterData.get_mover_fifty_weeks_below_twenty_to_thirty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < -20 and float(item.get_fifty_two_weeks_perc_change()) > -30:
+                        items.append(item)
+                        
+
+                if self.__mFilterData.get_mover_fifty_weeks_below_thirty_to_fourty() is not None and self.__mFilterData.get_mover_fifty_weeks_below_thirty_to_fourty():
+                    if item.get_fifty_two_weeks_perc_change() and float(item.get_fifty_two_weeks_perc_change()) < -30 and float(item.get_fifty_two_weeks_perc_change()) > -40:
+                        items.append(item)
+
+            if len(items) > 0:
+                self.__mFilteredItems = items
+        else:
+            self.__mFilteredItems = self.__mItems
+
+    def unbind_listener(self):
+        self.Unbind(wx.EVT_LIST_ITEM_SELECTED)
+
+    def bind_listener(self):
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.on_item_selected)
+#endregion
 
 class StocksViewList(wx.ListCtrl):
 
@@ -3384,6 +4684,1064 @@ class BasePanel(wx.Panel, threading.Thread):
         wx.MessageBox(msg, title, wx.OK)
 #endregion
 #endregion
+
+LISTEN_FILTER_CRYPTO_PANEL = "ListenFiltersCryptoPanel"
+
+class SearchCryptoPanel(BasePanel):
+
+    __mMainSizer = None
+
+    __mstCryptoData = None
+
+    __mtxMinPrice = None
+    __mtxMaxPrice = None
+    __mtxMinVolume = None
+    __mtxMaxVolume = None
+
+    __mcbMaxPriceMover = None
+    __mcbMinPriceMover = None
+    __mcbMaxVolumeMover = None
+    __mcbMinVolumeMover = None
+
+    __mtxMaxValueMover = None
+    __mtxMinValueMover = None
+
+    __mcbMoverAboveZero = None
+    __mcbMoverAboveFifty = None
+    __mcbMoverAboveHundred = None
+    __mcbMoverBelowZero = None
+    __mcbMoverBelowFifty = None
+    __mcbMoverBelowHundred = None
+
+    __mcbMoverAboveZeroToTen = None
+    __mcbMoverAboveTenToTwenty = None
+    __mcbMoverAboveTwentyThirty = None
+    __mcbMoverAboveThirtyFourty = None
+
+    __mcbMoverBelowZeroToTen = None
+    __mcbMoverBelowTenToTwenty = None
+    __mcbMoverBelowTwentyThirty = None
+    __mcbMoverBelowThirtyFourty = None
+
+    __mstFiftyWeeksData = None
+
+    __mtxFiftyMaxValueMover = None
+    __mtxFiftyMinValueMover = None
+
+    __mcbMoverFiftyWeeksAboveZero = None
+    __mcbMoverFiftyWeeksAboveFifty = None
+    __mcbMoverFiftyWeeksAboveHundred = None
+    __mcbMoverFiftyWeeksBelowZero = None
+    __mcbMoverFiftyWeeksBelowFifty = None
+
+    __mcbMoverFiftyWeeksAboveZeroToTen = None
+    __mcbMoverFiftyWeeksAboveTenToTwenty = None
+    __mcbMoverFiftyWeeksAboveTwentyThirty = None
+    __mcbMoverFiftyWeeksAboveThirtyFourty = None
+
+    __mcbMoverFiftyWeeksBelowZeroToTen = None
+    __mcbMoverFiftyWeeksBelowTenToTwenty = None
+    __mcbMoverFiftyWeeksBelowTwentyThirty = None
+    __mcbMoverFiftyWeeksBelowThirtyFourty = None
+
+
+    __mFilterSearchCryptoPanel = FilterSearchCryptoPanel()
+
+    def __init__(self, parent, size, filterData):
+        super().__init__(parent, size)
+        self.__mFilterSearchCryptoPanel = filterData
+        self.__init_layout()
+
+#region - Private Methods
+    def __init_layout(self):
+        self.__mMainSizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.__mMainSizer.AddSpacer(25)
+        
+        vbs = wx.BoxSizer(wx.VERTICAL)
+        vbs.Add(self.__get_panel_text_crypto_data(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_min_max_price(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_min_max_volume(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_max_min_movers_volumes(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_values_max_min_mover(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_one_percentage_movers(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_two_percentage_movers(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panel_text_fifty_weeks_data(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_fifty_weeks_values_max_min_mover(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_two_fifty_weeks_percentage_movers(), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panels_three_percentage_fifty_weeks_movers(), 0, wx.EXPAND)
+        vbs.AddSpacer(100)
+        vbs.Add(self.__get_panel_buttons(), 0, wx.EXPAND)
+
+        self.__mMainSizer.Add(vbs, 1, wx.ALL|wx.EXPAND)
+        self.__mMainSizer.AddSpacer(25)
+        self.SetSizer(self.__mMainSizer)
+
+#region - Header Crypto Data
+    def __get_panel_text_crypto_data(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mstCryptoData = wx.StaticText(panel, label = Strings.STR_CRYPTO_DATA, style = wx.ALIGN_CENTRE_HORIZONTAL)
+        WxUtils.set_font_size_and_bold_and_roman(self.__mstCryptoData, 15)
+        main.Add(self.__mstCryptoData, 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+#endregion
+
+#region - Min Max Price Methods
+    def __get_panels_min_max_price(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panel_max_price(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_min_price(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_max_price(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "Max Price", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxMaxPrice = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxMaxPrice.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxMaxPrice, 0, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_max_price():
+            self.__mtxMaxPrice.SetValue(self.__mFilterSearchCryptoPanel.get_max_price())
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_min_price(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "Min Price", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxMinPrice = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxMinPrice.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxMinPrice, 0, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_min_price():
+            self.__mtxMinPrice.SetValue(self.__mFilterSearchCryptoPanel.get_min_price())
+
+        panel.SetSizer(main)
+        return panel
+#endregion
+
+#region - Min Max Volume Methods
+    def __get_panels_min_max_volume(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panel_max_volume(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_min_volume(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_max_volume(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "Max Volume", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxMaxVolume = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxMaxVolume.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxMaxVolume, 0, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_max_volume():
+            self.__mtxMaxVolume.SetValue(self.__mFilterSearchCryptoPanel.get_max_volume())
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_min_volume(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "Min Volume", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxMinVolume = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxMinVolume.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxMinVolume, 0, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_min_volume():
+            self.__mtxMinVolume.SetValue(self.__mFilterSearchCryptoPanel.get_min_volume())
+
+        panel.SetSizer(main)
+        return panel
+
+#endregion
+
+#region - Min Max Movers / Volumes Methods
+    def __get_panels_max_min_movers_volumes(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panel_min_max_movers(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_min_max_volumes(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_min_max_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mcbMaxPriceMover = wx.CheckBox(panel, wx.ID_ANY, label = "Max Mover")
+        self.__mcbMaxPriceMover.Bind(wx.EVT_CHECKBOX, self.__on_check_max_mover)
+        main.Add(self.__mcbMaxPriceMover, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_max_price_mover():
+            self.__mcbMaxPriceMover.SetValue(True)
+
+        self.__mcbMinPriceMover = wx.CheckBox(panel, wx.ID_ANY, label = "Min Mover")
+        self.__mcbMinPriceMover.Bind(wx.EVT_CHECKBOX, self.__on_check_min_mover)
+        main.Add(self.__mcbMinPriceMover, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_min_price_mover():
+            self.__mcbMinPriceMover.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_min_max_volumes(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mcbMaxVolumeMover = wx.CheckBox(panel, wx.ID_ANY, label = "Max Volume")
+        self.__mcbMaxVolumeMover.Bind(wx.EVT_CHECKBOX, self.__on_check_max_volume)
+        main.Add(self.__mcbMaxVolumeMover, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_max_volume_mover():
+            self.__mcbMaxVolumeMover.SetValue(True)
+
+        self.__mcbMinVolumeMover = wx.CheckBox(panel, wx.ID_ANY, label = "Min Volume")
+        self.__mcbMinVolumeMover.Bind(wx.EVT_CHECKBOX, self.__on_check_min_volume)
+        main.Add(self.__mcbMinVolumeMover, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_min_volume_mover():
+            self.__mcbMinVolumeMover.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+#endregion
+
+
+#region - Percentage Above Below Movers Methods
+    def __get_panels_values_max_min_mover(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panel_value_max_mover(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_value_min_mover(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_value_max_mover(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "Max Value %", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxMaxValueMover = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxMaxValueMover.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxMaxValueMover, 0, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_value_max_mover():
+            self.__mtxMaxValueMover.SetValue(self.__mFilterSearchCryptoPanel.get_value_max_mover())
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_value_min_mover(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "Min Value %", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxMinValueMover = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxMinValueMover.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxMinValueMover, 0, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_value_min_mover():
+            self.__mtxMinValueMover.SetValue(self.__mFilterSearchCryptoPanel.get_value_min_mover())
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panels_one_percentage_movers(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panel_one_percentage_above_movers(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_one_percentage_below_movers(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_one_percentage_above_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+        self.__mcbMoverAboveZero = wx.CheckBox(panel, wx.ID_ANY, label = "> 0% Movers")
+        self.__mcbMoverAboveZero.Bind(wx.EVT_CHECKBOX, self.__on_check_above_zero)
+        main.Add(self.__mcbMoverAboveZero, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_above_zero():
+            self.__mcbMoverAboveZero.SetValue(True)
+
+        self.__mcbMoverAboveFifty = wx.CheckBox(panel, wx.ID_ANY, label = "> 50% Movers")
+        self.__mcbMoverAboveFifty.Bind(wx.EVT_CHECKBOX, self.__on_check_above_fifty)
+        main.Add(self.__mcbMoverAboveFifty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_above_fifty():
+            self.__mcbMoverAboveFifty.SetValue(True)
+
+        self.__mcbMoverAboveHundred = wx.CheckBox(panel, wx.ID_ANY, label = ">100% Movers")
+        self.__mcbMoverAboveHundred.Bind(wx.EVT_CHECKBOX, self.__on_check_above_hundred)
+        main.Add(self.__mcbMoverAboveHundred, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_above_hundred():
+            self.__mcbMoverAboveHundred.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_one_percentage_below_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+        self.__mcbMoverBelowZero = wx.CheckBox(panel, wx.ID_ANY, label = "< 0% Movers")
+        self.__mcbMoverBelowZero.Bind(wx.EVT_CHECKBOX, self.__on_check_below_zero)
+        main.Add(self.__mcbMoverBelowZero, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_below_zero():
+            self.__mcbMoverBelowZero.SetValue(True)
+
+        self.__mcbMoverBelowFifty = wx.CheckBox(panel, wx.ID_ANY, label = "< -50% Movers")
+        self.__mcbMoverBelowFifty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_fifty)
+        main.Add(self.__mcbMoverBelowFifty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_below_fifty():
+            self.__mcbMoverBelowFifty.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+#endregion
+
+#region - Specific Percentage Above Below Movers Methods
+    def __get_panels_two_percentage_movers(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panel_two_percentage_above_movers(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_two_percentage_below_movers(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_two_percentage_above_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mcbMoverAboveZeroToTen = wx.CheckBox(panel, wx.ID_ANY, label = "+0% - 10%")
+        self.__mcbMoverAboveZeroToTen.Bind(wx.EVT_CHECKBOX, self.__on_check_above_zero_to_ten)
+        main.Add(self.__mcbMoverAboveZeroToTen, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_above_zero_to_ten():
+            self.__mcbMoverAboveZeroToTen.SetValue(True)
+
+        self.__mcbMoverAboveTenToTwenty = wx.CheckBox(panel, wx.ID_ANY, label = "+10% - 20%")
+        self.__mcbMoverAboveTenToTwenty.Bind(wx.EVT_CHECKBOX, self.__on_check_above_ten_to_twenty)
+        main.Add(self.__mcbMoverAboveTenToTwenty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_above_ten_to_twenty():
+            self.__mcbMoverAboveTenToTwenty.SetValue(True)
+
+        self.__mcbMoverAboveTwentyThirty = wx.CheckBox(panel, wx.ID_ANY, label = "+20% - 30%")
+        self.__mcbMoverAboveTwentyThirty.Bind(wx.EVT_CHECKBOX, self.__on_check_above_twenty_to_thirty)
+        main.Add(self.__mcbMoverAboveTwentyThirty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_above_twenty_to_thirty():
+            self.__mcbMoverAboveTwentyThirty.SetValue(True)
+
+        self.__mcbMoverAboveThirtyFourty = wx.CheckBox(panel, wx.ID_ANY, label = "+30% - 40%")
+        self.__mcbMoverAboveThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_check_above_thirty_to_fourty)
+        main.Add(self.__mcbMoverAboveThirtyFourty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_above_thirty_to_fourty():
+            self.__mcbMoverAboveThirtyFourty.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_two_percentage_below_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+        self.__mcbMoverBelowZeroToTen = wx.CheckBox(panel, wx.ID_ANY, label = "0% - -10%")
+        self.__mcbMoverBelowZeroToTen.Bind(wx.EVT_CHECKBOX, self.__on_check_below_zero_to_ten)
+        main.Add(self.__mcbMoverBelowZeroToTen, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_below_zero_to_ten():
+            self.__mcbMoverBelowZeroToTen.SetValue(True)
+
+        self.__mcbMoverBelowTenToTwenty = wx.CheckBox(panel, wx.ID_ANY, label = "-10% - -20%")
+        self.__mcbMoverBelowTenToTwenty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_ten_to_twenty)
+        main.Add(self.__mcbMoverBelowTenToTwenty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_below_ten_to_twenty():
+            self.__mcbMoverBelowTenToTwenty.SetValue(True)
+
+        self.__mcbMoverBelowTwentyThirty = wx.CheckBox(panel, wx.ID_ANY, label = "-20% - -30%")
+        self.__mcbMoverBelowTwentyThirty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_twenty_to_thirty)
+        main.Add(self.__mcbMoverBelowTwentyThirty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_below_twenty_to_thirty():
+            self.__mcbMoverBelowTwentyThirty.SetValue(True)
+
+        self.__mcbMoverBelowThirtyFourty = wx.CheckBox(panel, wx.ID_ANY, label = "-30% - -40%")
+        self.__mcbMoverBelowThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_check_below_thirty_to_fourty)
+        main.Add(self.__mcbMoverBelowThirtyFourty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_below_thirty_to_fourty():
+            self.__mcbMoverBelowThirtyFourty.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+#endregion
+
+#region - Percentage Above Below Movers Methods
+    def __get_panel_text_fifty_weeks_data(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mstFiftyWeeksData = wx.StaticText(panel, label = Strings.STR_FIFTY_WEEKS_STOCK_DATA, style = wx.ALIGN_CENTRE_HORIZONTAL)
+        WxUtils.set_font_size_and_bold_and_roman(self.__mstFiftyWeeksData, 15)
+        main.Add(self.__mstFiftyWeeksData, 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panels_fifty_weeks_values_max_min_mover(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panel_fifty_weeks_value_max_mover(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_fifty_weeks_value_min_mover(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_fifty_weeks_value_max_mover(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "52-Week Max Value %", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxFiftyMaxValueMover = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxFiftyMaxValueMover.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxFiftyMaxValueMover, 0, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_fifty_value_max_mover():
+            self.__mtxFiftyMaxValueMover.SetValue(self.__mFilterSearchCryptoPanel.get_fifty_value_max_mover())
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_fifty_weeks_value_min_mover(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.VERTICAL)
+
+        main.Add(wx.StaticText(panel, label = "52-Week Min Value %", style = wx.ALIGN_CENTRE), 0, wx.EXPAND)
+        self.__mtxFiftyMinValueMover = wx.TextCtrl(panel, wx.ID_ANY, value = "", style = wx.TE_CENTRE)
+        self.__mtxFiftyMinValueMover.Bind(wx.EVT_CHAR, self.__on_change_text_check_is_int_value)
+        main.Add(self.__mtxFiftyMinValueMover, 0, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_fifty_value_min_mover():
+            self.__mtxFiftyMinValueMover.SetValue(self.__mFilterSearchCryptoPanel.get_fifty_value_min_mover())
+
+        panel.SetSizer(main)
+        return panel
+
+#endregion
+
+#region - Specific Percentage Above Below Movers Fifty Weeks Methods
+
+    def __get_panels_two_fifty_weeks_percentage_movers(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panel_two_fifty_weeks_percentage_above_movers(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panel_two_fifty_weeks_percentage_below_movers(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_two_fifty_weeks_percentage_above_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mcbMoverFiftyWeeksAboveZero = wx.CheckBox(panel, wx.ID_ANY, label = "> 0% Movers")
+        self.__mcbMoverFiftyWeeksAboveZero.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_zero)
+        main.Add(self.__mcbMoverFiftyWeeksAboveZero, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_above_zero():
+            self.__mcbMoverFiftyWeeksAboveZero.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksAboveFifty = wx.CheckBox(panel, wx.ID_ANY, label = "> 50% Movers")
+        self.__mcbMoverFiftyWeeksAboveFifty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_fifty)
+        main.Add(self.__mcbMoverFiftyWeeksAboveFifty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_above_fifty():
+            self.__mcbMoverFiftyWeeksAboveFifty.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksAboveHundred = wx.CheckBox(panel, wx.ID_ANY, label = ">100% Movers")
+        self.__mcbMoverFiftyWeeksAboveHundred.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_hundred)
+        main.Add(self.__mcbMoverFiftyWeeksAboveHundred, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_above_hundred():
+            self.__mcbMoverFiftyWeeksAboveHundred.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panel_two_fifty_weeks_percentage_below_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mcbMoverFiftyWeeksBelowZero = wx.CheckBox(panel, wx.ID_ANY, label = "< 0% Movers")
+        self.__mcbMoverFiftyWeeksBelowZero.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_zero)
+        main.Add(self.__mcbMoverFiftyWeeksBelowZero, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_below_zero():
+            self.__mcbMoverFiftyWeeksBelowZero.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksBelowFifty = wx.CheckBox(panel, wx.ID_ANY, label = "< -50% Movers")
+        self.__mcbMoverFiftyWeeksBelowFifty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_fifty)
+        main.Add(self.__mcbMoverFiftyWeeksBelowFifty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_below_fifty():
+            self.__mcbMoverFiftyWeeksBelowFifty.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panels_three_percentage_fifty_weeks_movers(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        main.Add(self.__get_panels_three_percentage_fifty_weeks_above_movers(panel), 1, wx.EXPAND)
+        main.AddSpacer(25)
+        main.Add(self.__get_panels_three_percentage_fifty_weeks_below_movers(panel), 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panels_three_percentage_fifty_weeks_above_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mcbMoverFiftyWeeksAboveZeroToTen = wx.CheckBox(panel, wx.ID_ANY, label = "+0% - 10%")
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_zero_to_ten)
+        main.Add(self.__mcbMoverFiftyWeeksAboveZeroToTen, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_above_zero_to_ten():
+            self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty = wx.CheckBox(panel, wx.ID_ANY, label = "+10% - 20%")
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_ten_to_twenty)
+        main.Add(self.__mcbMoverFiftyWeeksAboveTenToTwenty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_above_ten_to_twenty():
+            self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty = wx.CheckBox(panel, wx.ID_ANY, label = "+20% - 30%")
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_twenty_to_thirty)
+        main.Add(self.__mcbMoverFiftyWeeksAboveTwentyThirty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_above_twenty_to_thirty():
+            self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty = wx.CheckBox(panel, wx.ID_ANY, label = "+30% - 40%")
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_above_thirty_to_fourty)
+        main.Add(self.__mcbMoverFiftyWeeksAboveThirtyFourty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_above_thirty_to_fourty():
+            self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+
+    def __get_panels_three_percentage_fifty_weeks_below_movers(self, parent):
+        panel = wx.Panel(parent)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mcbMoverFiftyWeeksBelowZeroToTen = wx.CheckBox(panel, wx.ID_ANY, label = "0% - -10%")
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_zero_to_ten)
+        main.Add(self.__mcbMoverFiftyWeeksBelowZeroToTen, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_below_zero_to_ten():
+            self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty = wx.CheckBox(panel, wx.ID_ANY, label = "-10% - -20%")
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_ten_to_twenty)
+        main.Add(self.__mcbMoverFiftyWeeksBelowTenToTwenty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_below_ten_to_twenty():
+            self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty = wx.CheckBox(panel, wx.ID_ANY, label = "-20% - -30%")
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_twenty_to_thirty)
+        main.Add(self.__mcbMoverFiftyWeeksBelowTwentyThirty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_below_twenty_to_thirty():
+            self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(True)
+
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty = wx.CheckBox(panel, wx.ID_ANY, label = "-30% - -40%")
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.Bind(wx.EVT_CHECKBOX, self.__on_check_fifty_weeks_below_thirty_to_fourty)
+        main.Add(self.__mcbMoverFiftyWeeksBelowThirtyFourty, 1, wx.EXPAND)
+        if self.__mFilterSearchCryptoPanel.get_mover_fifty_weeks_below_thirty_to_fourty():
+            self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(True)
+
+        panel.SetSizer(main)
+        return panel
+#endregion
+
+#region - Get Panel Filter
+    def __get_panel_buttons(self):
+        panel = wx.Panel(self)
+        main = wx.BoxSizer(wx.HORIZONTAL)
+
+        searchButton = super()._get_icon_button(panel, wx.Bitmap(Icons.ICON_SEARCH), self.__on_click_search)
+        main.Add(searchButton, 1, wx.EXPAND)
+
+        panel.SetSizer(main)
+        return panel
+#endregion
+
+#region - Event Handler Methods
+    def __on_click_search(self, evt):
+        self.__send_data()
+        self.GetParent().Destroy()
+        self.Layout()
+
+    def __on_change_text_check_is_int_value(self, evt):
+        if(KeyboardEventUtils.on_change_text_check_is_int_value(self, evt)):
+            match evt.GetEventObject():
+                case self.__mtxMinPrice:
+                    self.__mFilterSearchCryptoPanel.set_min_price(self.__mtxMinPrice.GetValue())
+                case self.__mtxMaxPrice:
+                    self.__mFilterSearchCryptoPanel.set_max_price(self.__mtxMaxPrice.GetValue())
+                case self.__mtxMinVolume:
+                    self.__mFilterSearchCryptoPanel.set_min_volume(self.__mtxMinVolume.GetValue())
+                case self.__mtxMaxVolume:
+                    self.__mFilterSearchCryptoPanel.set_max_volume(self.__mtxMaxVolume.GetValue())
+                case self.__mtxMaxValueMover:
+                    self.__mFilterSearchCryptoPanel.set_value_max_mover(self.__mtxMaxValueMover.GetValue())
+                case self.__mtxMinValueMover:
+                    self.__mFilterSearchCryptoPanel.set_value_min_mover(self.__mtxMinValueMover.GetValue())
+                case self.__mtxFiftyMaxValueMover:
+                    self.__mFilterSearchCryptoPanel.set_fifty_value_max_mover(self.__mtxFiftyMaxValueMover.GetValue())
+                case self.__mtxFiftyMinValueMover:
+                    self.__mFilterSearchCryptoPanel.set_fifty_value_min_mover(self.__mtxFiftyMinValueMover.GetValue())
+
+    def __on_check_max_mover(self, evt):
+        self.__mFilterSearchCryptoPanel.set_max_price_mover(evt.IsChecked())
+        self.__mcbMinPriceMover.SetValue(False)
+        self.__mcbMinVolumeMover.SetValue(False)
+        self.__mcbMaxVolumeMover.SetValue(False)
+
+    def __on_check_min_mover(self, evt):
+        self.__mFilterSearchCryptoPanel.set_min_price_mover(evt.IsChecked())
+        self.__mcbMaxPriceMover.SetValue(False)
+        self.__mcbMinVolumeMover.SetValue(False)
+        self.__mcbMaxVolumeMover.SetValue(False)
+
+    def __on_check_max_volume(self, evt):
+        self.__mFilterSearchCryptoPanel.set_max_volume_mover(evt.IsChecked())
+        self.__mcbMinVolumeMover.SetValue(False)
+        self.__mcbMaxPriceMover.SetValue(False)
+        self.__mcbMinPriceMover.SetValue(False)
+
+    def __on_check_min_volume(self, evt):
+        self.__mFilterSearchCryptoPanel.set_min_volume_mover(evt.IsChecked())
+        self.__mcbMaxVolumeMover.SetValue(False)
+        self.__mcbMaxPriceMover.SetValue(False)
+        self.__mcbMinPriceMover.SetValue(False)
+
+    def __on_check_above_zero(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_above_zero(evt.IsChecked())
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_above_fifty(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_above_fifty(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_above_hundred(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_above_hundred(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_below_zero(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_below_zero(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_below_fifty(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_below_fifty(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_above_zero_to_ten(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_above_zero_to_ten(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_above_ten_to_twenty(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_above_ten_to_twenty(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_above_twenty_to_thirty(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_above_twenty_to_thirty(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_above_thirty_to_fourty(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_above_thirty_to_fourty(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_below_zero_to_ten(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_below_zero_to_ten(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_below_ten_to_twenty(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_below_ten_to_twenty(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_below_twenty_to_thirty(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_below_twenty_to_thirty(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowThirtyFourty.SetValue(False)
+
+    def __on_check_below_thirty_to_fourty(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_below_thirty_to_fourty(evt.IsChecked())
+        self.__mcbMoverAboveZero.SetValue(False)
+        self.__mcbMoverAboveFifty.SetValue(False)
+        self.__mcbMoverAboveHundred.SetValue(False)
+        self.__mcbMoverBelowZero.SetValue(False)
+        self.__mcbMoverBelowFifty.SetValue(False)
+        self.__mcbMoverAboveZeroToTen.SetValue(False)
+        self.__mcbMoverAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverBelowZeroToTen.SetValue(False)
+        self.__mcbMoverBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverBelowTwentyThirty.SetValue(False)
+
+    def __on_check_fifty_weeks_above_zero(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_above_zero(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_above_fifty(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_above_fifty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_above_hundred(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_above_hundred(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_below_zero(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_below_zero(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_below_fifty(self, evt):
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_below_fifty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_above_zero_to_ten(self, evt):      
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_above_zero_to_ten(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_above_ten_to_twenty(self, evt):      
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_above_ten_to_twenty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_above_twenty_to_thirty(self, evt):   
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_above_twenty_thirty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_above_thirty_to_fourty(self, evt):   
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_above_thirty_fourty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_below_zero_to_ten(self, evt):       
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_below_zero_to_ten(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_below_ten_to_twenty(self, evt):     
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_below_ten_to_twenty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_below_twenty_to_thirty(self, evt):   
+        self.__mFilterSearchCryptoPanel.set_mover_below_twenty_to_thirty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowThirtyFourty.SetValue(False)
+
+    def __on_check_fifty_weeks_below_thirty_to_fourty(self, evt):   
+        self.__mFilterSearchCryptoPanel.set_mover_fifty_weeks_below_thirty_fourty(evt.IsChecked())
+        self.__mcbMoverFiftyWeeksAboveZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveHundred.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZero.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowFifty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveTwentyThirty.SetValue(False)
+        self.__mcbMoverFiftyWeeksAboveThirtyFourty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowZeroToTen.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTenToTwenty.SetValue(False)
+        self.__mcbMoverFiftyWeeksBelowTwentyThirty.SetValue(False)
+#endregion
+
+    def __send_data(self):
+        j = json.dumps(self.__mFilterSearchCryptoPanel.to_dict())
+        pub.sendMessage(LISTEN_FILTER_CRYPTO_PANEL, message = json.loads(j))
+        self.GetParent().Destroy()
 
 LISTEN_FILTER_STOCK_PANEL = "ListenFiltersStockPanel"
 
@@ -4786,6 +7144,862 @@ class SearchStockPanel(BasePanel):
         pub.sendMessage(LISTEN_FILTER_STOCK_PANEL, message = json.loads(j))
         self.GetParent().Destroy()
 
+class ViewCryptosPanel(BasePanel):
+
+    __mThreadUpdateGraph: StoppableThread = None
+    __mThreadUpdateList: StoppableThread = None
+
+    __mTimerUpdateList = None
+    __mTimerUpdateLeftPanel = None
+
+    __mbsMainBox = None
+    __mMainSplitter = None
+    __mLeftPanel = None
+    __mRightPanel = None
+
+    __mtxSearchList = None
+    __mList = None
+
+    __mDataPanel = None
+    __mBoxSizerData = None
+    __msbCryptoImage = None
+    __mGraphsSizer = None
+    __mstMarketPercentage = None
+    __mstMarketCap = None
+    __mstDayMax = None
+    __mstDayMin = None
+    __mstFiftyTwoWeeksHigh = None
+    __mstFiftyTwoWeeksLow = None
+    __mstFifityTwoWeeksPercChange = None
+    __mstVolume = None
+    __mstVolumeTwentyFourHours = None
+    __mstVolumeAllCurrencies = None
+
+    __mGraphOneDayPlot = None
+    __mGraphOneDayCanvas = None
+    __mGraphLastColor = None
+    __mGraphAxValues = None
+    __mGraphAxVolume = None
+    __mGraphLastValue = None
+
+    __mIsShowingChart5d = None
+    __mIsShowingChart1Mo = None
+    __mIsShowingChart3Mo = None
+    __mIsShowingChart6Mo = None
+    __mIsShowingChart1Y = None
+    __mIsShowingChart2Y = None
+    __mIsShowingChart5Y = None
+    __mIsShowingChart10Y = None
+    __mIsShowingChartYTD = None
+    __mIsShowingChartMax = None
+
+    __mCryptos = None
+    __mStockViewData = None
+
+    __mFilterSearchCryptoPanel = FilterSearchCryptoPanel()
+
+    def __init__(self, parent, size, cryptos, crypto):
+        super().__init__(parent, size)
+        self.__mCryptos = cryptos
+        self.__initial_sync()
+        self.__init_threads()
+        self.__init_timers()
+        self.Bind(wx.EVT_WINDOW_DESTROY, self.__on_destroy_self)
+        pub.subscribe(self.listen_filter_crypto_panel, LISTEN_FILTER_CRYPTO_PANEL)
+        self.__init_layout()
+
+        if crypto is not None:
+            self.__on_click_item_list(crypto)
+
+#region - Private Methods
+#region - Init Methods
+    def __initial_sync(self):
+        if self.__mCryptos is None or len(self.__mCryptos) == 0x0:
+            pd = wx.ProgressDialog(Strings.STR_CRYPTOS, Strings.STR_INITIAL_SYNCHRONIZATION, parent = None, style = wx.PD_ELAPSED_TIME|wx.PD_REMAINING_TIME)
+            pd.Show()
+            self.__mCryptos = DataSynchronization.sync_all_crypto(pd)
+            pd.Destroy()
+
+    def __init_threads(self):
+        self.__mThreadUpdateGraph = StoppableThread(None, self.__update_graph_thread)
+        self.__mThreadUpdateList = StoppableThread(None, self.__update_list_thread)
+
+    def __init_timers(self):
+        self.__mTimerUpdateList = wx.Timer(self, -1)
+        self.__mTimerUpdateList.Start(20000)
+
+        self.__mTimerUpdateLeftPanel = wx.Timer(self, -1)
+        self.__mTimerUpdateLeftPanel.Start(20000)
+
+        self.Bind(wx.EVT_TIMER, self.__repopulate_list, self.__mTimerUpdateList)
+        self.Bind(wx.EVT_TIMER, self.__update_left_panel_data, self.__mTimerUpdateLeftPanel)
+
+    def __init_layout(self):
+        self.__mbsMainBox = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.__mbsMainBox.AddSpacer(10)
+        self.__mMainSplitter = wx.SplitterWindow(self)
+        self.__init_left_panel()
+        self.__init_right_panel()
+        self.__mMainSplitter.SplitVertically(self.__mLeftPanel, self.__mRightPanel, round((wx.DisplaySize()[0] / 10 * 7.5)))
+
+        self.__mbsMainBox.Add(self.__mMainSplitter, 1, wx.EXPAND)
+        self.__mbsMainBox.AddSpacer(10)
+        self.SetSizer(self.__mbsMainBox)
+        self.__mMainSplitter.Layout()
+        self.__mLeftPanel.Layout()
+        self.__mRightPanel.Layout()
+
+    def __init_right_panel(self):
+        self.__mRightPanel = wx.Panel(self.__mMainSplitter, wx.ID_ANY)
+        
+        main = wx.BoxSizer(wx.VERTICAL)
+        
+        vbs = wx.BoxSizer(wx.VERTICAL)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        hbs.AddSpacer(15)
+        hbs.Add(wx.StaticText(self.__mRightPanel, label = Strings.STR_SEARCH, style = wx.ALIGN_CENTRE), 0)
+        vbs.Add(hbs, 0)
+
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        hbs.AddSpacer(15)
+        self.__mtxSearchList = wx.TextCtrl(self.__mRightPanel, wx.ID_ANY, pos = wx.DefaultPosition, value = "", size = (500, 25))
+        self.__mtxSearchList.Bind(wx.EVT_TEXT, self.__on_change_search_list_value)
+        hbs.Add(self.__mtxSearchList, 1, wx.EXPAND)
+
+        searchButton = super()._get_icon_button(self.__mRightPanel, wx.Bitmap(Icons.ICON_SEARCH), self.__on_click_search)
+        hbs.Add(searchButton, 0, wx.EXPAND)
+
+        vbs.Add(hbs, 0)
+        main.Add(vbs, 0)
+        main.AddSpacer(15)
+        self.__mList = CryptosViewList(self.__mRightPanel, wx.ID_ANY, wx.EXPAND|wx.LC_REPORT|wx.SUNKEN_BORDER, self.GetSize()[0], self.__on_click_item_list)
+        main.Add(self.__mList, 1, wx.EXPAND)
+        self.__mList.init_layout()
+
+        self.__mList.add_items_and_populate(self.__mCryptos)
+
+        self.__mRightPanel.SetSizer(main)
+        self.__mRightPanel.Fit()
+
+        if not self.__mThreadUpdateList.is_alive():
+            self.__mThreadUpdateList.start()
+
+    def __init_left_panel(self):
+        self.__mLeftPanel = wx.lib.scrolledpanel.ScrolledPanel(self.__mMainSplitter, wx.ID_ANY)
+        self.__mLeftPanel.Fit()
+        self.__mLeftPanel.SetupScrolling()
+        self.__mLeftPanel.Layout()
+#endregion
+
+#region - Event Handler Methods
+    def __on_destroy_self(self, evt):
+        self.__mTimerUpdateList.Stop()
+        self.__mTimerUpdateLeftPanel.Stop()
+        self.__mThreadUpdateGraph.stop()
+        self.__mThreadUpdateList.stop()
+
+    def __on_change_search_list_value(self, evt):
+        self.__mList.filter_items_by_name(evt.GetString())
+
+    def __on_click_search(self, evt):
+        self.__mSearchCryptoFrame = SearchCryptoFrame(Strings.STR_SEARCH, self.__mFilterSearchCryptoPanel)
+        self.__mSearchCryptoFrame.Show(True)
+
+    def __on_click_item_list(self, item):
+        self.__mStockViewData = DataSynchronization.sync_single_crypto_full_data(item)
+        self.__mIsShowingChart5d = False
+        self.__mIsShowingChart1Mo = False
+        self.__mIsShowingChart3Mo = False
+        self.__mIsShowingChart6Mo = False
+        self.__mIsShowingChart1Y = False
+        self.__mIsShowingChart2Y = False
+        self.__mIsShowingChart5Y = False
+        self.__mIsShowingChart10Y = False
+        self.__mIsShowingChartYTD = False
+        self.__mIsShowingChartMax = False
+        self.__update_left_panel()
+
+    def __on_click_five_day_chart(self, evt):
+        if not self.__mIsShowingChart5d:
+            stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_5D, APIConstants.VALUE_1M)
+            self.__mGraphsSizer.Add(self.__get_chart_row(self.__mDataPanel, Strings.STR_5D_VALUES, Strings.STR_5D_VOLUME, stockView.get_timestamps(), stockView.get_opens(), stockView.get_closes(), stockView.get_volumes()), 0, wx.EXPAND)
+            self.__mLeftPanel.SetupScrolling()
+            self.__mIsShowingChart5d = True        
+
+    def __on_click_one_month_chart(self, evt):
+        if not self.__mIsShowingChart1Mo:
+            stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_1MO, APIConstants.VALUE_5M)
+            self.__mGraphsSizer.Add(self.__get_chart_row(self.__mDataPanel, Strings.STR_1MO_VALUES, Strings.STR_1MO_VOLUME, stockView.get_timestamps(), stockView.get_opens(), stockView.get_closes(), stockView.get_volumes()), 0, wx.EXPAND)
+            self.__mLeftPanel.SetupScrolling()
+            self.__mIsShowingChart1Mo = True
+
+    def __on_click_three_month_chart(self, evt):
+        if not self.__mIsShowingChart3Mo:
+            stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_3MO, APIConstants.VALUE_1D)
+            self.__mGraphsSizer.Add(self.__get_chart_row(self.__mDataPanel, Strings.STR_3MO_VALUES, Strings.STR_3MO_VOLUME, stockView.get_timestamps(), stockView.get_opens(), stockView.get_closes(), stockView.get_volumes()), 0, wx.EXPAND)
+            self.__mLeftPanel.SetupScrolling()
+            self.__mIsShowingChart3Mo = True
+
+    def __on_click_six_month_chart(self, evt):
+        if not self.__mIsShowingChart6Mo:
+            stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_6MO, APIConstants.VALUE_1D)
+            self.__mGraphsSizer.Add(self.__get_chart_row(self.__mDataPanel, Strings.STR_6MO_VALUES, Strings.STR_6MO_VOLUME, stockView.get_timestamps(), stockView.get_opens(), stockView.get_closes(), stockView.get_volumes()), 0, wx.EXPAND)
+            self.__mLeftPanel.SetupScrolling()
+            self.__mIsShowingChart6Mo = True
+
+    def __on_click_one_year_chart(self, evt):
+        if not self.__mIsShowingChart1Y:
+            stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_1Y, APIConstants.VALUE_1D)
+            self.__mGraphsSizer.Add(self.__get_chart_row(self.__mDataPanel, Strings.STR_1Y_VALUES, Strings.STR_1Y_VOLUME, stockView.get_timestamps(), stockView.get_opens(), stockView.get_closes(), stockView.get_volumes()), 0, wx.EXPAND)
+            self.__mLeftPanel.SetupScrolling()
+            self.__mIsShowingChart1Y = True
+
+    def __on_click_two_year_chart(self, evt):
+        if not self.__mIsShowingChart2Y:
+            stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_2Y, APIConstants.VALUE_1D)
+            self.__mGraphsSizer.Add(self.__get_chart_row(self.__mDataPanel, Strings.STR_2Y_VALUES, Strings.STR_2Y_VOLUME, stockView.get_timestamps(), stockView.get_opens(), stockView.get_closes(), stockView.get_volumes()), 0, wx.EXPAND)
+            self.__mLeftPanel.SetupScrolling()
+            self.__mIsShowingChart2Y = True
+
+    def __on_click_five_year_chart(self, evt):
+        if not self.__mIsShowingChart5Y:
+            stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_5Y, APIConstants.VALUE_1D)
+            self.__mGraphsSizer.Add(self.__get_chart_row(self.__mDataPanel, Strings.STR_5Y_VALUES, Strings.STR_5Y_VOLUME, stockView.get_timestamps(), stockView.get_opens(), stockView.get_closes(), stockView.get_volumes()), 0, wx.EXPAND)
+            self.__mLeftPanel.SetupScrolling()
+            self.__mIsShowingChart5Y = True
+
+    def __on_click_ten_year_chart(self, evt):
+        if not self.__mIsShowingChart10Y:
+            stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_10Y, APIConstants.VALUE_1D)
+            self.__mGraphsSizer.Add(self.__get_chart_row(self.__mDataPanel, Strings.STR_10Y_VALUES, Strings.STR_10Y_VOLUME, stockView.get_timestamps(), stockView.get_opens(), stockView.get_closes(), stockView.get_volumes()), 0, wx.EXPAND)
+            self.__mLeftPanel.SetupScrolling()
+            self.__mIsShowingChart10Y = True
+
+    def __on_click_ytd_chart(self, evt):
+        if not self.__mIsShowingChartYTD:
+            stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_YTD, APIConstants.VALUE_1D)
+            self.__mGraphsSizer.Add(self.__get_chart_row(self.__mDataPanel, Strings.STR_YTD_VALUES, Strings.STR_YTD_VOLUME, stockView.get_timestamps(), stockView.get_opens(), stockView.get_closes(), stockView.get_volumes()), 0, wx.EXPAND)
+            self.__mLeftPanel.SetupScrolling()
+            self.__mIsShowingChartYTD = True
+
+    def __on_click_max_chart(self, evt):
+        if not self.__mIsShowingChartMax:
+            stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_MAX, APIConstants.VALUE_1D)
+            self.__mGraphsSizer.Add(self.__get_chart_row(self.__mDataPanel, Strings.STR_MAX_VALUES, Strings.STR_MAX_VOLUME, stockView.get_timestamps(), stockView.get_opens(), stockView.get_closes(), stockView.get_volumes()), 0, wx.EXPAND)
+            self.__mLeftPanel.SetupScrolling()
+            self.__mIsShowingChartMax = True
+
+    def __on_click_open_one_day_chart(self, evt):
+        stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_1D, APIConstants.VALUE_1M)
+        self.__mGraphOneDayPlot = ChartFrame("One Day Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        self.__mGraphOneDayPlot.Show(True)
+        self.__mGraphOneDayPlot.Bind(wx.EVT_WINDOW_DESTROY, self.__on_destroy_graph_one_day_plot)
+
+    def __on_click_open_five_day_chart(self, evt):
+        stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_5D, APIConstants.VALUE_1M)
+        cf = ChartFrame("Five Days Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf.Show(True)
+        
+    def __on_click_open_one_month_chart(self, evt):
+        stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_1MO, APIConstants.VALUE_5M)
+        cf = ChartFrame("One Month Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf.Show(True)
+
+    def __on_click_open_three_month_chart(self, evt):
+        stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_3MO, APIConstants.VALUE_1H)
+        cf = ChartFrame("Three Months Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf.Show(True)
+
+    def __on_click_open_six_month_chart(self, evt):
+        stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_6MO, APIConstants.VALUE_1H)
+        cf = ChartFrame("Six Months Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf.Show(True)
+
+    def __on_click_open_one_year_chart(self, evt):
+        stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_1Y, APIConstants.VALUE_1H)
+        cf = ChartFrame("One Year Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf.Show(True)
+
+    def __on_click_open_two_year_chart(self, evt):
+        stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_2Y, APIConstants.VALUE_1H)
+        cf = ChartFrame("Two Years Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf.Show(True)
+
+    def __on_click_open_five_year_chart(self, evt):
+        stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_5Y, APIConstants.VALUE_1D)
+        cf = ChartFrame("Five Years Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf.Show(True)
+
+    def __on_click_open_ten_year_chart(self, evt):
+        stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_10Y, APIConstants.VALUE_1D)
+        cf = ChartFrame("Ten Years Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf.Show(True)
+
+    def __on_click_open_ytd_chart(self, evt):
+        stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_YTD, APIConstants.VALUE_1H)
+        cf = ChartFrame("YTD Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf.Show(True)
+
+    def __on_click_open_max_chart(self, evt):
+        stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_MAX, APIConstants.VALUE_1D)
+        cf = ChartFrame("Max Chart", stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float))
+        cf.Show(True)
+
+    def __on_click_open_in_new_window(self, evt):
+        cryptos = []
+        for c in self.__mCryptos:
+            if c is not None:
+                cryptos.append(c)
+        frame = ViewCryptosFrame(self.__mStockViewData.get_crypto().get_sign(), cryptos, self.__mStockViewData.get_crypto())
+        frame.Show()
+
+    def __repopulate_list(self, event):
+        list_total = self.__mList.GetItemCount()
+        list_top = self.__mList.GetTopItem()
+        list_pp = self.__mList.GetCountPerPage()
+        list_bottom = min(list_top + list_pp, list_total - 1)
+        self.__mList.populate_list()
+        if list_bottom != 0:
+            self.__mList.EnsureVisible((list_bottom - 1))
+        filtered = self.__mList.get_filtered_items()
+        if filtered is not None and len(filtered) > 0:
+            for i in range(0, len(filtered)):
+                if self.__mStockViewData is not None and self.__mStockViewData.get_crypto() is not None and self.__mStockViewData.get_crypto().get_sign() == filtered[i].get_sign():
+                    self.__mList.unbind_listener()
+                    self.__mList.Select(i)
+                    self.__mList.bind_listener()
+                    break
+        self.__mLeftPanel.Layout()
+
+    def __update_left_panel_data(self, event):
+        if self.__mStockViewData is not None:
+            self.__mstMarketPercentage.SetLabel(str(round(self.__mStockViewData.get_crypto().get_market_change_percent(), 2))  + "%")
+            self.__mstPrice.SetLabel("$" + str(self.__mStockViewData.get_crypto().get_price()))
+            self.__mstMarketCap.SetLabel(TextUtils.convert_number_to_millions_form(self.__mStockViewData.get_crypto().get_market_cap()))
+            self.__mstDayMax.SetLabel(str(self.__mStockViewData.get_crypto().get_day_max()))
+            self.__mstDayMin.SetLabel(str(self.__mStockViewData.get_crypto().get_day_min()))
+            self.__mstFiftyTwoWeeksHigh.SetLabel(str(self.__mStockViewData.get_crypto().get_fifty_two_weeks_high()))
+            self.__mstFiftyTwoWeeksLow.SetLabel(str(self.__mStockViewData.get_crypto().get_fifty_two_weeks_low()))
+            self.__mstFifityTwoWeeksPercChange.SetLabel(str(NumberUtils.safe_round(self.__mStockViewData.get_crypto().get_fifty_two_weeks_perc_change(), 2)))
+            self.__mstVolume.SetLabel(TextUtils.convert_number_with_commas_form(self.__mStockViewData.get_crypto().get_volume()))
+            self.__mstVolumeTwentyFourHours.SetLabel(TextUtils.convert_number_with_commas_form(self.__mStockViewData.get_crypto().get_volume_twenty_four_hours()))
+            self.__mstVolumeAllCurrencies.SetLabel(TextUtils.convert_number_with_commas_form(self.__mStockViewData.get_crypto().get_volume_all_currencies()))
+            self.__mLeftPanel.Layout()
+
+    def __on_destroy_graph_one_day_plot(self, event):
+        self.__mGraphOneDayPlot = None
+#endregion
+
+#region - Private Methods
+    def __update_left_panel(self):
+        if self.__mBoxSizerData is not None:
+            for child in self.__mBoxSizerData.GetChildren():
+                if child is not None and child.Window is not None:
+                    self.__mBoxSizerData.Hide(child.GetWindow())
+                    self.__mBoxSizerData.Layout()
+        self.__mBoxSizerData = wx.BoxSizer(wx.VERTICAL)
+
+        self.__mBoxSizerData.Add(self.__get_layout_nome_crypto(), 0, wx.EXPAND)
+        self.__mBoxSizerData.Add(self.__get_layout_data_one(), 1, wx.EXPAND|wx.ALL)
+
+        self.__mLeftPanel.SetSizer(self.__mBoxSizerData)
+
+        if self.__mIsShowingChart5d:
+            self.__mIsShowingChart5d = False
+            self.__on_click_five_day_chart(None)
+
+        if self.__mIsShowingChart1Mo:
+            self.__mIsShowingChart1Mo = False
+            self.__on_click_one_month_chart(None)
+
+        if self.__mIsShowingChart3Mo:
+            self.__mIsShowingChart3Mo = False
+            self.__on_click_three_month_chart(None)
+
+        if self.__mIsShowingChart6Mo:
+            self.__mIsShowingChart6Mo = False
+            self.__on_click_six_month_chart(None)
+        
+        if self.__mIsShowingChart1Y:
+            self.__mIsShowingChart1Y = False
+            self.__on_click_one_year_chart(None)
+        
+        if self.__mIsShowingChart2Y:
+            self.__mIsShowingChart2Y = False
+            self.__on_click_two_year_chart(None)
+        
+        if self.__mIsShowingChart5Y:
+            self.__mIsShowingChart5Y = False
+            self.__on_click_five_year_chart(None)
+        
+        if self.__mIsShowingChart10Y:
+            self.__mIsShowingChart10Y = False
+            self.__on_click_ten_year_chart(None)
+        
+        if self.__mIsShowingChartYTD:
+            self.__mIsShowingChartYTD = False
+            self.__on_click_ytd_chart(None)
+        
+        if self.__mIsShowingChartMax:
+            self.__mIsShowingChartMax = False
+            self.__on_click_max_chart(None)
+
+        if not self.__mThreadUpdateGraph.is_alive():
+            self.__mThreadUpdateGraph.start()
+
+        self.__mLeftPanel.Layout()
+
+    def __get_layout_nome_crypto(self):
+        panel = wx.Panel(self.__mLeftPanel)
+
+        vbs = wx.BoxSizer(wx.VERTICAL)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        image = wx.ImageFromStream(io.BytesIO(requests.get(self.__mStockViewData.get_crypto().get_img_url()).content)).ConvertToBitmap()
+        self.__msbCryptoImage = wx.StaticBitmap(panel, wx.ID_ANY, image, wx.DefaultPosition, wx.DefaultSize, 0)
+        hbs.Add(self.__msbCryptoImage, 0, wx.EXPAND)
+        hbs.AddSpacer(50)        
+        st = wx.StaticText(panel, label = "(" + self.__mStockViewData.get_crypto().get_sign() + ")", style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size_and_bold_and_roman(st, 30)
+        hbs.Add(st, 0, wx.EXPAND)
+        hbs.AddSpacer(25)
+        st = wx.StaticText(panel, label = self.__mStockViewData.get_crypto().get_name(), style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size_and_bold_and_roman(st, 30)
+        hbs.Add(st, 0, wx.EXPAND)
+        vbs.Add(hbs, 0, wx.EXPAND)
+
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        self.__mstMarketPercentage = wx.StaticText(panel, label = str(round(self.__mStockViewData.get_crypto().get_market_change_percent(), 2))  + "%")
+        WxUtils.set_font_size_and_bold_and_roman(self.__mstMarketPercentage, 20)
+        if self.__mStockViewData.get_crypto().get_market_change_percent() is not None and self.__mStockViewData.get_crypto().get_market_change_percent() > 0:
+            self.__mstMarketPercentage.SetForegroundColour(Colors.GREEN)
+        else:
+            self.__mstMarketPercentage.SetForegroundColour(Colors.RED)
+        
+        self.__mstPrice = wx.StaticText(panel, label = "$" + str(self.__mStockViewData.get_crypto().get_price()))
+        WxUtils.set_font_size_and_bold_and_roman(self.__mstPrice, 20)
+        hbs.Add(self.__mstPrice, 0, wx.EXPAND)
+        hbs.AddSpacer(50)
+        hbs.Add(self.__mstMarketPercentage, 1, wx.EXPAND)
+        
+        vbs.Add(hbs, 0, wx.EXPAND)
+        panel.SetSizer(vbs)
+        return panel
+
+    def __get_layout_data_one(self):
+        self.__mDataPanel = wx.Panel(self.__mLeftPanel)
+        
+        vbs = wx.BoxSizer(wx.VERTICAL)
+        vbs.AddSpacer(10)
+        self.__mGraphsSizer = wx.BoxSizer(wx.VERTICAL)
+        self.__mGraphsSizer.Add(self.__get_chart_row_thread_managed(self.__mDataPanel, Strings.STR_1D_VALUES, Strings.STR_1D_VOLUME, self.__mStockViewData.get_timestamps(), self.__mStockViewData.get_opens(), self.__mStockViewData.get_closes(), self.__mStockViewData.get_volumes()), 0, wx.EXPAND)
+        vbs.Add(self.__mGraphsSizer, 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_zero_row_info(self.__mDataPanel), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_first_row_info(self.__mDataPanel), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_second_row_info(self.__mDataPanel), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_third_row_info(self.__mDataPanel), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panel_open_in_new_window(self.__mDataPanel), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panel_one_charts(self.__mDataPanel), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panel_two_charts(self.__mDataPanel), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panel_three_charts(self.__mDataPanel), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panel_four_charts(self.__mDataPanel), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+        vbs.Add(self.__get_panel_five_charts(self.__mDataPanel), 0, wx.EXPAND)
+        vbs.AddSpacer(10)
+
+        self.__mDataPanel.SetSizer(vbs)
+        return self.__mDataPanel
+
+    def __get_chart_row_thread_managed(self, parent, label1, label2, timestamps, opens, closes, volumes):
+        panel = wx.Panel(parent)
+        self.fig = Figure(figsize=(2, 4))
+        self.__mGraphOneDayCanvas = FigureCanvas(panel, -1, self.fig)
+        toolbar = NavigationToolbar(self.__mGraphOneDayCanvas)
+        toolbar.Realize()
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.__mGraphOneDayCanvas, 1, wx.EXPAND)
+        sizer.Add(toolbar, 0, wx.LEFT | wx.EXPAND)
+        panel.SetSizer(sizer)
+
+        timestamps = np.array(timestamps, dtype=str)
+        opens = np.array(opens, dtype=float)
+        volumes = np.array(volumes, dtype=float)
+
+        (self.__mGraphAxValues, self.__mGraphAxVolume) = self.fig.subplots(1, 2)
+        
+        self.__mGraphAxValues.set_title(label1)
+        if timestamps is not None and len(timestamps) > 0x0:
+            self.__mGraphAxValues.plot(timestamps, opens)
+            self.__mGraphAxValues.fill_between(timestamps, min(opens), opens, alpha=0.5)
+            self.__mGraphLastValue = opens[len(opens) - 1]
+
+        if timestamps is not None and len(timestamps) > 0x0:
+            self.__mGraphAxVolume.set_title(label2)
+            self.__mGraphAxVolume.stem(timestamps, volumes)
+
+        return panel
+
+    def __get_chart_row(self, parent, label1, label2, timestamps, opens, closes, volumes):
+        panel = wx.Panel(parent)
+        fig = Figure(figsize=(2, 4))
+        canvas = FigureCanvas(panel, -1, fig)
+        toolbar = NavigationToolbar(canvas)
+        toolbar.Realize()
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(canvas, 1, wx.EXPAND)
+        sizer.Add(toolbar, 0, wx.LEFT | wx.EXPAND)
+        panel.SetSizer(sizer)
+
+        opens = np.array(opens, dtype=float)
+
+        (ax1, ax2) = fig.subplots(1, 2)
+        ax1.set_title(label1)
+        ax1.plot(timestamps, opens)
+        ax1.fill_between(timestamps, min(opens), opens, alpha=0.5)
+
+        ax2.set_title(label2)
+        ax2.stem(timestamps, volumes)
+
+        return panel
+
+    def __get_zero_row_info(self, parent):
+        panel = wx.Panel(parent)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        hbs.AddSpacer(10)
+        
+        st = wx.StaticText(panel, label = Strings.STR_FIELD_MARKET_CAP, style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size(st, 15)
+        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        hbs.AddSpacer(5)
+        self.__mstMarketCap = wx.StaticText(panel, label = TextUtils.convert_number_to_millions_form(self.__mStockViewData.get_crypto().get_market_cap()), style = wx.ALIGN_RIGHT)
+        font = WxUtils.set_font_size(self.__mstMarketCap, 15)
+        hbs.Add(self.__mstMarketCap, 0, wx.ALL|wx.EXPAND)
+
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstMarketCap.GetLabel())
+
+        hbs.AddSpacer(350 - w)
+
+        st = wx.StaticText(panel, label = Strings.STR_FIELD_CIRCULATING_SUPPLY, style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size(st, 15)
+        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        hbs.AddSpacer(5)
+        if self.__mStockViewData.get_crypto().get_circulating_supply() is not None:
+            st = wx.StaticText(panel, label = TextUtils.convert_number_to_millions_form(int(self.__mStockViewData.get_crypto().get_circulating_supply())), style = wx.ALIGN_RIGHT)
+        else:
+            st = wx.StaticText(panel, label = Strings.STR_UNDEFINED, style = wx.ALIGN_RIGHT)
+        WxUtils.set_font_size(st, 15)
+        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+
+        panel.SetSizer(hbs)
+        return panel
+
+    def __get_first_row_info(self, parent):
+        panel = wx.Panel(parent)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        hbs.AddSpacer(10)
+
+        st = wx.StaticText(panel, label = Strings.STR_FIELD_DAY_MAX, style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size(st, 15)
+        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        hbs.AddSpacer(5)
+        self.__mstDayMax = wx.StaticText(panel, label = str(self.__mStockViewData.get_crypto().get_day_max()), style = wx.ALIGN_RIGHT)
+        self.__mstDayMax.SetForegroundColour(Colors.GREEN)
+        font = WxUtils.set_font_size(self.__mstDayMax, 15)
+        hbs.Add(self.__mstDayMax, 0, wx.ALL|wx.EXPAND)
+
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstDayMax.GetLabel())
+
+        hbs.AddSpacer(350 - w)
+
+        st = wx.StaticText(panel, label = Strings.STR_FIELD_DAY_MIN, style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size(st, 15)
+        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        hbs.AddSpacer(5)
+        self.__mstDayMin = wx.StaticText(panel, label = str(self.__mStockViewData.get_crypto().get_day_min()), style = wx.ALIGN_RIGHT)
+        self.__mstDayMin.SetForegroundColour(Colors.RED)
+        WxUtils.set_font_size(self.__mstDayMin, 15)
+        hbs.Add(self.__mstDayMin, 0, wx.ALL|wx.EXPAND)
+
+        panel.SetSizer(hbs)
+        return panel
+
+    def __get_second_row_info(self, parent):
+        panel = wx.Panel(parent)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        hbs.AddSpacer(10)
+
+        st = wx.StaticText(panel, label = Strings.STR_FIELD_52_WEEKS_MAX, style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size(st, 15)
+        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        hbs.AddSpacer(5)
+        self.__mstFiftyTwoWeeksHigh = wx.StaticText(panel, label = str(self.__mStockViewData.get_crypto().get_fifty_two_weeks_high()), style = wx.ALIGN_RIGHT)
+        font = WxUtils.set_font_size(self.__mstFiftyTwoWeeksHigh, 15)
+        self.__mstFiftyTwoWeeksHigh.SetForegroundColour(Colors.GREEN)
+        hbs.Add(self.__mstFiftyTwoWeeksHigh, 0, wx.ALL|wx.EXPAND)
+
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstFiftyTwoWeeksHigh.GetLabel())
+
+        hbs.AddSpacer(350 - w)
+
+        st = wx.StaticText(panel, label = Strings.STR_FIELD_52_WEEKS_MIN, style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size(st, 15)
+        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        hbs.AddSpacer(5)
+        self.__mstFiftyTwoWeeksLow = wx.StaticText(panel, label = str(self.__mStockViewData.get_crypto().get_fifty_two_weeks_low()), style = wx.ALIGN_RIGHT)
+        WxUtils.set_font_size(self.__mstFiftyTwoWeeksLow, 15)
+        self.__mstFiftyTwoWeeksLow.SetForegroundColour(Colors.RED)
+        hbs.Add(self.__mstFiftyTwoWeeksLow, 0, wx.ALL|wx.EXPAND)
+
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstFiftyTwoWeeksLow.GetLabel())
+
+        hbs.AddSpacer(350 - w)
+
+        st = wx.StaticText(panel, label = Strings.STR_FIELD_52_WEEKS_PERC_CHANGE, style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size(st, 15)
+        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        hbs.AddSpacer(5)
+        self.__mstFifityTwoWeeksPercChange = wx.StaticText(panel, label = str(NumberUtils.safe_round(self.__mStockViewData.get_crypto().get_fifty_two_weeks_perc_change(), 2)), style = wx.ALIGN_RIGHT)
+        WxUtils.set_font_size(self.__mstFifityTwoWeeksPercChange, 15)
+        if self.__mStockViewData.get_crypto().get_fifty_two_weeks_perc_change() > 0:
+            self.__mstFifityTwoWeeksPercChange.SetForegroundColour(Colors.GREEN)
+        else:
+            self.__mstFifityTwoWeeksPercChange.SetForegroundColour(Colors.RED)
+        hbs.Add(self.__mstFifityTwoWeeksPercChange, 0, wx.ALL|wx.EXPAND)
+
+        panel.SetSizer(hbs)
+        return panel
+
+    def __get_third_row_info(self, parent):
+        panel = wx.Panel(parent)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        hbs.AddSpacer(10)
+
+        st = wx.StaticText(panel, label = Strings.STR_FIELD_VOLUME, style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size(st, 15)
+        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        hbs.AddSpacer(5)
+        self.__mstVolume = wx.StaticText(panel, label = TextUtils.convert_number_with_commas_form(self.__mStockViewData.get_crypto().get_volume()), style = wx.ALIGN_RIGHT)
+        font = WxUtils.set_font_size(self.__mstVolume, 15)
+        hbs.Add(self.__mstVolume, 0, wx.ALL|wx.EXPAND)
+
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstVolume.GetLabel())
+
+        hbs.AddSpacer(350 - w)
+
+        st = wx.StaticText(panel, label = Strings.STR_FIELD_VOLUME_24H, style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size(st, 15)
+        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        hbs.AddSpacer(5)
+        self.__mstVolumeTwentyFourHours = wx.StaticText(panel, label = TextUtils.convert_number_with_commas_form(self.__mStockViewData.get_crypto().get_volume_twenty_four_hours()), style = wx.ALIGN_RIGHT)
+        WxUtils.set_font_size(self.__mstVolumeTwentyFourHours, 15)
+        hbs.Add(self.__mstVolumeTwentyFourHours, 0, wx.ALL|wx.EXPAND)
+
+        dc = wx.ScreenDC()
+        dc.SetFont(font)
+        w, h = dc.GetTextExtent(st.GetLabel() + self.__mstVolumeTwentyFourHours.GetLabel())
+
+        hbs.AddSpacer(350 - w)
+
+        st = wx.StaticText(panel, label = Strings.STR_FIELD_VOLUME_ALL_CURRENCIES, style = wx.ALIGN_LEFT)
+        WxUtils.set_font_size(st, 15)
+        hbs.Add(st, 0, wx.ALL|wx.EXPAND)
+        hbs.AddSpacer(5)
+        self.__mstVolumeAllCurrencies = wx.StaticText(panel, label = TextUtils.convert_number_with_commas_form(NumberUtils.safe_round(self.__mStockViewData.get_crypto().get_volume_all_currencies(), 2)), style = wx.ALIGN_RIGHT)
+        WxUtils.set_font_size(self.__mstVolumeAllCurrencies, 15)
+        hbs.Add(self.__mstVolumeAllCurrencies, 0, wx.ALL|wx.EXPAND)
+
+        panel.SetSizer(hbs)
+        return panel
+
+    def __get_panel_open_in_new_window(self, parent):
+        p = wx.Panel(parent)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open in New Window", self.__on_click_open_in_new_window), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+
+        p.SetSizer(hbs)
+        return p
+
+    def __get_panel_one_charts(self, parent):
+        p = wx.Panel(parent)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "5D Chart", self.__on_click_five_day_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "1M Chart", self.__on_click_one_month_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "3M Chart", self.__on_click_three_month_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "6M Chart", self.__on_click_six_month_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "1y Chart", self.__on_click_one_year_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+
+        p.SetSizer(hbs)
+        return p
+
+    def __get_panel_two_charts(self, parent):
+        p = wx.Panel(parent)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "2y Chart", self.__on_click_two_year_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "5y Chart", self.__on_click_five_year_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "10y Chart", self.__on_click_ten_year_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "YTD Chart", self.__on_click_ytd_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Max Chart", self.__on_click_max_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+
+        p.SetSizer(hbs)
+        return p
+
+    def __get_panel_three_charts(self, parent):
+        p = wx.Panel(parent)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open 1D Chart", self.__on_click_open_one_day_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open 5D Chart", self.__on_click_open_five_day_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open 1M Chart", self.__on_click_open_one_month_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open 3M Chart", self.__on_click_open_three_month_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+
+        p.SetSizer(hbs)
+        return p
+
+    def __get_panel_four_charts(self, parent):
+        p = wx.Panel(parent)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open 6M Chart", self.__on_click_open_six_month_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open 1Y Chart", self.__on_click_open_one_year_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open 2Y Chart", self.__on_click_open_two_year_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open 5Y Chart", self.__on_click_open_five_year_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+
+        p.SetSizer(hbs)
+        return p
+
+    def __get_panel_five_charts(self, parent):
+        p = wx.Panel(parent)
+        hbs = wx.BoxSizer(wx.HORIZONTAL)
+        
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open 10Y Chart", self.__on_click_open_ten_year_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open YTD Chart", self.__on_click_open_ytd_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+        hbs.Add(super()._get_button(p, "Open Max Chart", self.__on_click_open_max_chart), 1, wx.EXPAND)
+        hbs.AddSpacer(10)
+
+        p.SetSizer(hbs)
+        return p
+#endregion
+
+#region - Thread Methods
+    def __update_graph_thread(self):
+        while not self.__mThreadUpdateGraph.stopped():
+            stockView = DataSynchronization.sync_get_chart(self.__mStockViewData.get_crypto().get_sign(), APIConstants.VALUE_1D, APIConstants.VALUE_1M)
+            opens = np.array(stockView.get_opens(), dtype=float)
+
+            if self.__mGraphAxValues is not None and stockView.get_timestamps() is not None and len(stockView.get_timestamps()) > 0x0:
+                self.__mGraphAxValues.clear()
+
+                try:
+                    if self.__mGraphLastValue != opens[len(opens) - 1]:
+                        if self.__mGraphLastValue <= opens[len(opens) - 1]:
+                            self.__mGraphAxValues.plot(stockView.get_timestamps(), opens, "g")
+                            self.__mGraphLastColor = "g"
+                        else:
+                            self.__mGraphAxValues.plot(stockView.get_timestamps(), opens, "r")
+                            self.__mGraphLastColor = "r"
+                    else:
+                        self.__mGraphAxValues.plot(stockView.get_timestamps(), opens, self.__mGraphLastColor)
+                except:
+                    Environment().get_logger().error(ViewCryptosPanel.__name__ + " - " + Strings.STR_ERROR_GRAPH)
+
+                self.__mGraphAxValues.fill_between(stockView.get_timestamps(), min(opens), opens, alpha=0.5)
+                self.__mGraphLastValue = opens[len(opens) - 1]
+                self.__mGraphAxValues.set_title(Strings.STR_1D_VALUES)
+
+                self.__mGraphAxVolume.clear()
+                self.__mGraphAxVolume.stem(stockView.get_timestamps(), stockView.get_volumes())
+                self.__mGraphAxVolume.set_title(Strings.STR_1D_VOLUME)
+
+                self.__mGraphOneDayCanvas.draw()
+                self.__mGraphOneDayCanvas.flush_events()
+                
+                if self.__mGraphOneDayPlot is not None:
+                    self.__mGraphOneDayPlot.update_values_with_color(stockView.get_timestamps(), np.array(stockView.get_opens(), dtype=float), self.__mGraphLastColor)
+
+            time.sleep(30)
+
+    def __update_list_thread(self):
+        while not self.__mThreadUpdateList.stopped():
+            list_top = self.__mList.GetTopItem()
+            pos = self.__mList.get_filtered_item_position(list_top)
+            list_pp = self.__mList.GetCountPerPage()
+            cryptos = []
+            filteredItems = self.__mList.get_filtered_items()
+            if pos + list_pp <= len(filteredItems):
+                for i in range(pos, pos + list_pp):
+                    s = filteredItems[i]
+                    if s is not None:
+                        cryptos.append(s)
+                cryptos = DataSynchronization.sync_update_all_cryptos(cryptos)
+                self.__mList.add_specific_filtered_items(cryptos, list_top, pos + list_pp)
+            else:
+                for i in range(pos, len(filteredItems)):
+                    s = filteredItems[i]
+                    if s is not None:
+                        cryptos.append(s)
+                cryptos = DataSynchronization.sync_update_all_cryptos(cryptos)
+                self.__mList.add_specific_filtered_items(cryptos, list_top, len(filteredItems))
+            time.sleep(30)
+#endregion
+
+    def listen_filter_crypto_panel(self, message, arg= None):
+        self.__mFilterSearchCryptoPanel.from_json(message)
+        self.__mList.set_filter_data(self.__mFilterSearchCryptoPanel)
+        self.__mList.filter_items()
+
+#endregion
+
 class ViewStocksPanel(BasePanel):
 
     __mSearchStockFrame = None
@@ -4828,12 +8042,9 @@ class ViewStocksPanel(BasePanel):
 
     __mThreadUpdateGraph: StoppableThread = None
     __mThreadUpdateList: StoppableThread = None
-    __mThreadUpdateGraphPlotOneDay: StoppableThread = None
 
     __mTimerUpdateList = None
     __mTimerUpdateLeftPanel = None
-
-    __mStockViewData = None
 
     __mGraphLastValue = None
     __mGraphLastColor = "b"
@@ -4849,12 +8060,16 @@ class ViewStocksPanel(BasePanel):
     __mIsShowingChartYTD = False
     __mIsShowingChartMax = False
 
+    __mStocks = None
+    __mStockViewData = None
+
     __mFilterSearchStockPanel = FilterSearchStockPanel()
 
     def __init__(self, parent, size, stocks, stock):
         super().__init__(parent, size)
         self.__mStocks = stocks
-        self.init_threads()
+        self.__initial_sync()
+        self.__init_threads()
         self.Bind(wx.EVT_WINDOW_DESTROY, self.__on_destroy_self)
         pub.subscribe(self.listen_filter_stock_panel, LISTEN_FILTER_STOCK_PANEL)
         self.__init_timers()
@@ -4865,7 +8080,14 @@ class ViewStocksPanel(BasePanel):
 
 #region - Private Methods
 #region - Init Methods
-    def init_threads(self):
+    def __initial_sync(self):
+        if self.__mStocks is None or len(self.__mStocks) == 0x0:
+            pd = wx.ProgressDialog(Strings.STR_STOCKS, Strings.STR_INITIAL_SYNCHRONIZATION, parent = None, style = wx.PD_ELAPSED_TIME|wx.PD_REMAINING_TIME)
+            pd.Show()
+            self.__mStocks = DataSynchronization.sync_all_stocks_and_symbols(pd)
+            pd.Destroy()
+
+    def __init_threads(self):
         self.__mThreadUpdateGraph = StoppableThread(None, self.__update_graph_thread)
         self.__mThreadUpdateList = StoppableThread(None, self.__update_list_thread)
 
@@ -4921,9 +8143,6 @@ class ViewStocksPanel(BasePanel):
         self.__mList = StocksViewList(self.__mRightPanel, wx.ID_ANY, wx.EXPAND|wx.LC_REPORT|wx.SUNKEN_BORDER, self.GetSize()[0], self.__on_click_item_list)
         main.Add(self.__mList, 1, wx.EXPAND)
         self.__mList.init_layout()
-
-        if self.__mStocks is None or len(self.__mStocks) == 0x0:
-            self.__mStocks = DataSynchronization.sync_all_stocks_and_symbols()
 
         self.__mList.add_items_and_populate(self.__mStocks)
 
@@ -5954,6 +9173,28 @@ class ViewStocksPanel(BasePanel):
 
 #endregion
 
+class SearchCryptoFrame(wx.Frame):
+
+    def __init__(self, title, filterData):
+        wx.Frame.__init__(self, None, wx.ID_ANY, title, size = Constants.DISPLAY_SIZE_SEARCH_STOCKS_FRAME)
+        wx.Frame.CenterOnScreen(self)
+        self.__init_main_panel(filterData)
+
+    def __init_main_panel(self, filterData):
+        self.__mMainPanel = SearchCryptoPanel(self, wx.DisplaySize(), filterData)
+        self.__mMainPanel.Show()
+
+class SearchStockFrame(wx.Frame):
+
+    def __init__(self, title, filterData):
+        wx.Frame.__init__(self, None, wx.ID_ANY, title, size = Constants.DISPLAY_SIZE_SEARCH_STOCKS_FRAME)
+        wx.Frame.CenterOnScreen(self)
+        self.__init_main_panel(filterData)
+
+    def __init_main_panel(self, filterData):
+        self.__mMainPanel = SearchStockPanel(self, wx.DisplaySize(), filterData)
+        self.__mMainPanel.Show()
+
 class ChartFrame(wx.Frame):
    
     __mFigure = None
@@ -6001,6 +9242,17 @@ class ChartFrame(wx.Frame):
         self.__mCanvas.flush_events()
 #endregion
 
+class ViewCryptosFrame(wx.Frame):
+
+    def __init__(self, title, crypto):
+        wx.Frame.__init__(self, None, wx.ID_ANY, title, size=Constants.DISPLAY_SIZE_MAIN_FRAME)
+        wx.Frame.CenterOnScreen(self)
+        self.__init_main_panel(crypto)
+
+    def __init_main_panel(self, crypto):
+        self.__mMainPanel = ViewCryptosPanel.ViewCryptosPanel(self, wx.DisplaySize(), stock)
+        self.__mMainPanel.Show()
+
 class ViewStocksFrame(wx.Frame):
 
     def __init__(self, title, stocks, stock):
@@ -6013,26 +9265,128 @@ class ViewStocksFrame(wx.Frame):
         self.__mMainPanel = ViewStocksPanel(self, wx.DisplaySize(), stocks, stock)
         self.__mMainPanel.Show()
 
-class SearchStockFrame(wx.Frame):
+class MainFrame(wx.Frame):
 
-    def __init__(self, title, filterData):
-        wx.Frame.__init__(self, None, wx.ID_ANY, title, size=Constants.DISPLAY_SIZE_SEARCH_STOCKS_FRAME)
+    __mViewStocksPanel: ViewStocksPanel = None
+    __mViewCryptosPanel : ViewCryptosPanel = None
+
+    __mMenubar: wx.MenuBar = None
+
+    __mProgressDialog: wx.ProgressDialog = None
+
+    def __init__(self):
+        wx.Frame.__init__(self, None, wx.ID_ANY, title=Strings.STR_TRADING_STOCKS_VIEW, size=Constants.DISPLAY_SIZE_MAIN_FRAME)
         wx.Frame.CenterOnScreen(self)
-        self.__init_main_panel(filterData)
+        self.Maximize(True)
+        self.Show()
+        self.__init_layout()
 
-    def __init_main_panel(self, filterData):
-        self.__mMainPanel = SearchStockPanel(self, wx.DisplaySize(), filterData)
-        self.__mMainPanel.Show()
+    def OnCloseMe(self, event):
+        self.Close(True)
+
+    def OnCloseWindow(self, event):
+        self.Destroy()
+
+#region - Private Methods
+    def __init_layout(self):
+        self.__init_menubar()
+        self.__init_view_stocks_panel()
+        
+#region - Init Menu Methods
+    def __init_menubar(self):
+        self.__mMenubar = wx.MenuBar()
+        self.__init_menu_assets()
+        self.SetMenuBar(self.__mMenubar)
+
+    def __init_menu_assets(self):
+        assetsMenu = wx.Menu()
+        m11 = assetsMenu.Append(-1, Strings.STR_MENU_STOCKS)
+        m12 = assetsMenu.Append(-1, Strings.STR_MENU_CRYPTO)
+        self.__mMenubar.Append(assetsMenu, Strings.STR_MENU_ASSETS_VIEW)
+        self.Bind(wx.EVT_MENU, self.__on_click_menu_stocks_view, m11)
+        self.Bind(wx.EVT_MENU, self.__on_click_menu_cryptos_view, m12)
+#endregion
+
+#region - Init Panels Methods
+    def __init_view_stocks_panel(self):
+        self.__remove_all_panels()
+        self.__mViewStocksPanel = ViewStocksPanel(self, wx.DisplaySize(), [], None)
+        self.__mViewStocksPanel.Show()
+
+    def __init_view_cryptos_panel(self):
+        self.__remove_all_panels()
+        self.__mViewCryptosPanel = ViewCryptosPanel(self, wx.DisplaySize(), [], None)
+        self.__mViewCryptosPanel.Show()
+#endregion
+
+#region - Remove Panel Methods
+    def __remove_all_panels(self):
+        self.__remove_view_stocks_panel()
+        self.__remove_view_cryptos_panel()
+
+    def __remove_view_stocks_panel(self):
+        if self.__mViewStocksPanel:
+            self.__mViewStocksPanel.Destroy()
+
+    def __remove_view_cryptos_panel(self):
+        if self.__mViewCryptosPanel:
+            self.__mViewCryptosPanel.Destroy()
+#endregion
+
+#region - On Click Methods
+    def __on_click_menu_stocks_view(self, evt):
+        self.__init_view_stocks_panel()
+
+    def __on_click_menu_cryptos_view(self, evt):
+        self.__init_view_cryptos_panel()
+#endregion
+#endregion
+
+class Environment():
+
+    __mLogger = None
+
+    def __new__(cls):
+        if not hasattr(cls, '_mInstance'):
+            cls._mInstance = super(Environment, cls).__new__(cls)
+        return cls._mInstance
+
+#region - Getter Methods
+    def get_configuration(self):
+        return self.__mConfigurationData
+
+    def get_logger(self):
+        return self.__mLogger
+#endregion
+
+#region - Public Methods
+    def init(self):
+        self.__init_logger()
+#endregion
+
+#region - Private Methods
+    def __init_logger(self):
+        logging.basicConfig(level=logging.INFO)
+        self.__mLogger = logging.getLogger()
+#endregion
+
+    # To String
+    def __str__(self):
+        return  "####################\n"\
+                f"# {Environment.__name__}\n"\
+                f"{super().__str__()}\n"\
+                "####################"
+
 
 class MainApplication(wx.App):
 
-    __mMainFrame: ViewStocksFrame = None
+    __mMainFrame: MainFrame = None
 
     def __init__(self, redirect):
         wx.App.__init__(self, redirect)
 
     def OnInit(self):
-        self.__mMainFrame = ViewStocksFrame("Stocks View", [], None)
+        self.__mMainFrame = MainFrame()
         self.__mMainFrame.Show()
         self.SetTopWindow(self.__mMainFrame)
         return True
@@ -6042,6 +9396,7 @@ class MainApplication(wx.App):
 
 def main():
     faulthandler.enable()
+    Environment().init()
     application = MainApplication(False)
     application.MainLoop()
 
